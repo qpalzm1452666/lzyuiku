@@ -503,6 +503,7 @@ function LZYUI.new(config)
     self.Panel.Size = UDim2.new(0, 0, 0, 0)
     self.Panel.Position = UDim2.new(1, -72, 1, -72)
     self.Panel.BackgroundColor3 = self.Colors.BG
+    self.Panel.BackgroundTransparency = 1
     self.Panel.BorderSizePixel = 0
     self.Panel.Visible = false
     self.Panel.ClipsDescendants = true
@@ -511,6 +512,7 @@ function LZYUI.new(config)
     corner(self.Panel, UDim.new(0, 20))
     shadow(self.Panel)
 
+    -- 创建inner并保存到self
     local inner = Instance.new("Frame")
     inner.Name = "Inner"
     inner.Size = UDim2.new(1, 0, 1, 0)
@@ -520,6 +522,7 @@ function LZYUI.new(config)
     inner.ZIndex = 51
     inner.Parent = self.Panel
     corner(inner, UDim.new(0, 20))
+    self.Inner = inner
 
     -- 顶部栏
     local topBar = Instance.new("Frame")
@@ -747,12 +750,17 @@ function LZYUI:Show()
 
     self.Panel.Size = UDim2.new(self.Width * 0.85, 0, self.Height * 0.85, 0)
     self.Panel.Position = UDim2.new(targetX + self.Width * 0.075, 0, targetY + self.Height * 0.075, 0)
-    self.Panel.BackgroundTransparency = 0.3
+    self.Panel.BackgroundTransparency = 1
+    self.Inner.BackgroundTransparency = 0.4
 
     -- 同时播放缩放+淡入动画
     tween(self.Panel, {
         Size = UDim2.new(self.Width, 0, self.Height, 0),
         Position = UDim2.new(targetX, 0, targetY, 0),
+        BackgroundTransparency = 1,
+    }, 0.25)
+
+    tween(self.Inner, {
         BackgroundTransparency = 0,
     }, 0.25)
 end
@@ -768,7 +776,10 @@ function LZYUI:Hide()
     tween(self.Panel, {
         Size = UDim2.new(self.Width * 0.85, 0, self.Height * 0.85, 0),
         Position = UDim2.new(targetX + self.Width * 0.075, 0, targetY + self.Height * 0.075, 0),
-        BackgroundTransparency = 0.3,
+    }, 0.2)
+
+    tween(self.Inner, {
+        BackgroundTransparency = 0.4,
     }, 0.2)
 
     task.wait(0.2)
@@ -778,7 +789,7 @@ end
 
 function LZYUI:SetTitle(title)
     self.Title = title
-    for _, child in ipairs(self.Panel.Inner.TopBar:GetChildren()) do
+    for _, child in ipairs(self.Inner.TopBar:GetChildren()) do
         if child:IsA("TextLabel") then
             child.Text = title
             break
