@@ -1,24 +1,24 @@
 -- ============================================
 -- LZYUI v1.0 - 林玉UI库
 -- 一个简洁的Roblox UI库，支持标签页、开关、滑块、下拉框等
--- 作者：by
+-- 作者：林玉
 -- 用法：local LZYUI = loadstring(game:HttpGet("你的链接"))()
 -- ============================================
 
 local LZYUI = {}
 LZYUI.__index = LZYUI
 
--- 默认颜色配置
+-- 默认颜色配置 - 全部改为浅色
 local DEFAULT_COLORS = {
-    PRIMARY   = Color3.fromRGB(100, 180, 220),  -- 主色（蓝）
-    ACCENT    = Color3.fromRGB(240, 140, 160),  -- 强调色（粉）
-    ACCENT2   = Color3.fromRGB(200, 120, 140),  -- 强调色2
-    PRIMARY2  = Color3.fromRGB(80, 160, 200),   -- 主色2
-    BG        = Color3.fromRGB(245, 245, 247),  -- 背景
-    TEXT      = Color3.fromRGB(55, 55, 65),     -- 文字
-    TEXT2     = Color3.fromRGB(110, 110, 120),  -- 次要文字
+    PRIMARY   = Color3.fromRGB(180, 225, 245),  -- 主色（很浅的蓝色）
+    ACCENT    = Color3.fromRGB(255, 210, 220),  -- 强调色（很浅的粉色）
+    ACCENT2   = Color3.fromRGB(240, 190, 200),  -- 强调色2（浅粉）
+    PRIMARY2  = Color3.fromRGB(160, 210, 235),  -- 主色2（浅蓝）
+    BG        = Color3.fromRGB(248, 248, 250),  -- 背景
+    TEXT      = Color3.fromRGB(70, 70, 80),     -- 文字
+    TEXT2     = Color3.fromRGB(130, 130, 140),  -- 次要文字
     WHITE     = Color3.fromRGB(255, 255, 255),  -- 白色
-    GRAY      = Color3.fromRGB(190, 190, 190),  -- 灰色
+    GRAY      = Color3.fromRGB(200, 200, 200),  -- 灰色
     DARK      = Color3.fromRGB(35, 35, 40),     -- 深色
 }
 
@@ -461,8 +461,9 @@ function LZYUI.new(config)
         GRAY      = DEFAULT_COLORS.GRAY,
         DARK      = DEFAULT_COLORS.DARK,
     }
-    self.Width = config.Width or 0.65
-    self.Height = self.Width * (420 / 320)
+    -- 窗口尺寸增大
+    self.Width = config.Width or 0.75
+    self.Height = self.Width * (450 / 320)
     self.Tabs = {}
     self.SelectedTab = 1
     self.IsOpen = false
@@ -495,18 +496,6 @@ function LZYUI.new(config)
     orbStroke.Thickness = 2
     orbStroke.Transparency = 0.5
     orbStroke.Parent = self.Orb
-
-    -- 悬浮球呼吸动画
-    task.spawn(function()
-        while self.Orb and self.Orb.Parent do
-            if not self.Orb.Visible then break end
-            tween(orbStroke, {Transparency = 0.2}, 1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-            task.wait(1.5)
-            if not (self.Orb and self.Orb.Parent) then break end
-            tween(orbStroke, {Transparency = 0.6}, 1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-            task.wait(1.5)
-        end
-    end)
 
     -- 创建主面板
     self.Panel = Instance.new("Frame")
@@ -552,7 +541,7 @@ function LZYUI.new(config)
     topBarMask.Parent = topBar
 
     local topTitle = Instance.new("TextLabel")
-    topTitle.Size = UDim2.new(1, -60, 1, 0)
+    topTitle.Size = UDim2.new(1, -110, 1, 0)
     topTitle.Position = UDim2.new(0, 18, 0, 0)
     topTitle.BackgroundTransparency = 1
     topTitle.Text = self.Title
@@ -563,14 +552,15 @@ function LZYUI.new(config)
     topTitle.ZIndex = 54
     topTitle.Parent = topBar
 
+    -- ========== 减号按钮（隐藏窗口）==========
     local shrinkBtn = Instance.new("TextButton")
     shrinkBtn.Name = "ShrinkBtn"
-    shrinkBtn.Size = UDim2.new(0, 36, 0, 36)
-    shrinkBtn.Position = UDim2.new(1, -48, 0, 7)
+    shrinkBtn.Size = UDim2.new(0, 32, 0, 32)
+    shrinkBtn.Position = UDim2.new(1, -76, 0, 9)
     shrinkBtn.BackgroundColor3 = self.Colors.ACCENT
-    shrinkBtn.Text = "×"
+    shrinkBtn.Text = "−"
     shrinkBtn.TextColor3 = self.Colors.TEXT
-    shrinkBtn.TextSize = 22
+    shrinkBtn.TextSize = 20
     shrinkBtn.Font = Enum.Font.GothamBold
     shrinkBtn.BorderSizePixel = 0
     shrinkBtn.ZIndex = 55
@@ -579,6 +569,25 @@ function LZYUI.new(config)
 
     shrinkBtn.MouseButton1Click:Connect(function()
         self:Hide()
+    end)
+
+    -- ========== 叉号按钮（销毁窗口）==========
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Name = "CloseBtn"
+    closeBtn.Size = UDim2.new(0, 32, 0, 32)
+    closeBtn.Position = UDim2.new(1, -40, 0, 9)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 120)
+    closeBtn.Text = "×"
+    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeBtn.TextSize = 20
+    closeBtn.Font = Enum.Font.GothamBold
+    closeBtn.BorderSizePixel = 0
+    closeBtn.ZIndex = 55
+    closeBtn.Parent = topBar
+    corner(closeBtn, UDim.new(1, 0))
+
+    closeBtn.MouseButton1Click:Connect(function()
+        self:Destroy()
     end)
 
     -- 主体区域
@@ -960,27 +969,22 @@ end
 
 function LZYUI:SwitchTab(idx)
     if self.SelectedTab == idx then
-        -- 随机切换强调色，增加活力
         self.NavButtons[idx].BackgroundColor3 = math.random() > 0.5 and self.Colors.PRIMARY or self.Colors.ACCENT
         return
     end
 
-    -- 恢复上一个按钮
     if self.NavButtons[self.SelectedTab] then
         self.NavButtons[self.SelectedTab].BackgroundColor3 = self.Colors.WHITE
     end
 
-    -- 高亮新按钮
     if self.NavButtons[idx] then
         self.NavButtons[idx].BackgroundColor3 = self.Tabs[idx].AccentColor
     end
 
-    -- 隐藏旧页面
     if self.Tabs[self.SelectedTab] then
         self.Tabs[self.SelectedTab].Page.Visible = false
     end
 
-    -- 显示新页面（带动画）
     if self.Tabs[idx] then
         self.Tabs[idx].Page.Visible = true
         self.Tabs[idx].Page.Position = UDim2.new(0.05, 0, 0, 0)
@@ -991,14 +995,15 @@ function LZYUI:SwitchTab(idx)
 end
 
 -- ============================================
--- 通知系统
+-- 通知系统 - 移到左上角屏幕外
 -- ============================================
 function LZYUI:Notify(title, text, duration)
     duration = duration or 3
 
     local notif = Instance.new("Frame")
     notif.Size = UDim2.new(0, 280, 0, 80)
-    notif.Position = UDim2.new(1, 20, 0.85, 0)
+    -- 初始位置在左上角屏幕外
+    notif.Position = UDim2.new(0, -300, 0, -100)
     notif.BackgroundColor3 = self.Colors.WHITE
     notif.BorderSizePixel = 0
     notif.ZIndex = 200
@@ -1037,11 +1042,12 @@ function LZYUI:Notify(title, text, duration)
     textLbl.ZIndex = 201
     textLbl.Parent = notif
 
-    -- 滑入动画
-    tween(notif, {Position = UDim2.new(1, -300, 0.85, 0)}, 0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+    -- 滑入动画 - 从左上角屏幕外滑入到左上角可见区域
+    tween(notif, {Position = UDim2.new(0, 20, 0, 20)}, 0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 
     task.delay(duration, function()
-        tween(notif, {Position = UDim2.new(1, 20, 0.85, 0)}, 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+        -- 滑出动画 - 滑回左上角屏幕外
+        tween(notif, {Position = UDim2.new(0, -300, 0, -100)}, 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
         task.wait(0.3)
         notif:Destroy()
     end)
@@ -1064,7 +1070,6 @@ function LZYUI:SetTheme(theme)
         self.Colors.WHITE = Color3.fromRGB(255, 255, 255)
         self.Colors.GRAY = Color3.fromRGB(190, 190, 190)
     end
-    -- 实际应用主题需要遍历更新所有元素，这里简化处理
     self:Notify("主题切换", "主题已切换为 " .. theme .. "，重启后完全生效", 2)
 end
 
