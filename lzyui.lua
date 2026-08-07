@@ -733,7 +733,7 @@ function LZYUI:_SetupDrag()
 end
 
 -- ============================================
--- 窗口控制 - 简洁过渡动画
+-- 窗口控制 - 简洁缩放+淡入淡出过渡
 -- ============================================
 function LZYUI:Show()
     if self.IsOpen then return end
@@ -741,21 +741,37 @@ function LZYUI:Show()
     self.Orb.Visible = false
     self.Panel.Visible = true
 
-    -- 简洁的淡入+缩放动画，没有弹性效果
-    self.Panel.Size = UDim2.new(self.Width, 0, self.Height, 0)
-    self.Panel.Position = UDim2.new((1-self.Width)/2, 0, (1-self.Height)/2 - 0.05, 0)
-    self.Panel.BackgroundTransparency = 1
+    -- 初始状态：缩小+透明+偏上
+    local targetX = (1 - self.Width) / 2
+    local targetY = (1 - self.Height) / 2 - 0.05
 
-    tween(self.Panel, {BackgroundTransparency = 0}, 0.2)
+    self.Panel.Size = UDim2.new(self.Width * 0.85, 0, self.Height * 0.85, 0)
+    self.Panel.Position = UDim2.new(targetX + self.Width * 0.075, 0, targetY + self.Height * 0.075, 0)
+    self.Panel.BackgroundTransparency = 0.3
+
+    -- 同时播放缩放+淡入动画
+    tween(self.Panel, {
+        Size = UDim2.new(self.Width, 0, self.Height, 0),
+        Position = UDim2.new(targetX, 0, targetY, 0),
+        BackgroundTransparency = 0,
+    }, 0.25)
 end
 
 function LZYUI:Hide()
     if not self.IsOpen then return end
     self.IsOpen = false
 
-    -- 简洁的淡出动画
-    tween(self.Panel, {BackgroundTransparency = 1}, 0.15)
-    task.wait(0.15)
+    local targetX = (1 - self.Width) / 2
+    local targetY = (1 - self.Height) / 2 - 0.05
+
+    -- 同时播放缩放+淡出动画
+    tween(self.Panel, {
+        Size = UDim2.new(self.Width * 0.85, 0, self.Height * 0.85, 0),
+        Position = UDim2.new(targetX + self.Width * 0.075, 0, targetY + self.Height * 0.075, 0),
+        BackgroundTransparency = 0.3,
+    }, 0.2)
+
+    task.wait(0.2)
     self.Panel.Visible = false
     self.Orb.Visible = true
 end
