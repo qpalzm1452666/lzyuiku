@@ -1,7 +1,7 @@
 -- ============================================
 -- LZYUI v1.0 - 林玉UI库
 -- 一个简洁的Roblox UI库，支持标签页、开关、滑块、下拉框等
--- 作者：林玉
+-- 作者：by
 -- 用法：local LZYUI = loadstring(game:HttpGet("你的链接"))()
 -- ============================================
 
@@ -461,9 +461,9 @@ function LZYUI.new(config)
         GRAY      = DEFAULT_COLORS.GRAY,
         DARK      = DEFAULT_COLORS.DARK,
     }
-    -- 窗口尺寸增大
-    self.Width = config.Width or 0.75
-    self.Height = self.Width * (450 / 320)
+    -- 窗口尺寸稍微缩小
+    self.Width = config.Width or 0.70
+    self.Height = self.Width * (420 / 320)
     self.Tabs = {}
     self.SelectedTab = 1
     self.IsOpen = false
@@ -733,7 +733,7 @@ function LZYUI:_SetupDrag()
 end
 
 -- ============================================
--- 窗口控制
+-- 窗口控制 - 简洁过渡动画
 -- ============================================
 function LZYUI:Show()
     if self.IsOpen then return end
@@ -741,38 +741,22 @@ function LZYUI:Show()
     self.Orb.Visible = false
     self.Panel.Visible = true
 
-    self.Panel.AnchorPoint = Vector2.new(0.5, 0.5)
-    self.Panel.Size = UDim2.new(0, 0, 0, 0)
-    self.Panel.Position = UDim2.new(0.5, 0, 0.5, 0)
+    -- 简洁的淡入+缩放动画，没有弹性效果
+    self.Panel.Size = UDim2.new(self.Width, 0, self.Height, 0)
+    self.Panel.Position = UDim2.new((1-self.Width)/2, 0, (1-self.Height)/2 - 0.05, 0)
+    self.Panel.BackgroundTransparency = 1
 
-    tween(self.Panel, {
-        Size = UDim2.new(self.Width, 0, self.Height, 0),
-        Position = UDim2.new((1-self.Width)/2 + self.Width/2, 0, (1-self.Height)/2 + self.Height/2, 0),
-    }, 0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-
-    task.delay(0.5, function()
-        if self.Panel.Visible then
-            self.Panel.AnchorPoint = Vector2.new(0, 0)
-            self.Panel.Position = UDim2.new((1-self.Width)/2, 0, (1-self.Height)/2, 0)
-        end
-    end)
+    tween(self.Panel, {BackgroundTransparency = 0}, 0.2)
 end
 
 function LZYUI:Hide()
     if not self.IsOpen then return end
     self.IsOpen = false
 
-    self.Panel.AnchorPoint = Vector2.new(0.5, 0.5)
-    self.Panel.Position = UDim2.new((1-self.Width)/2 + self.Width/2, 0, (1-self.Height)/2 + self.Height/2, 0)
-
-    tween(self.Panel, {
-        Size = UDim2.new(0, 0, 0, 0),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-    }, 0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-
-    task.wait(0.35)
+    -- 简洁的淡出动画
+    tween(self.Panel, {BackgroundTransparency = 1}, 0.15)
+    task.wait(0.15)
     self.Panel.Visible = false
-    self.Panel.AnchorPoint = Vector2.new(0, 0)
     self.Orb.Visible = true
 end
 
