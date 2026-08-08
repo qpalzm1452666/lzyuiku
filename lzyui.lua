@@ -1,5 +1,5 @@
 -- ============================================
--- LZYUI v2.0 - LinYu UI Library
+-- LZYUI v2.1 - LinYu UI Library
 -- Roblox UI Library with Tabs, Toggles, Sliders, Dropdowns, etc.
 -- ============================================
 
@@ -28,19 +28,6 @@ local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
-
--- ============================================
--- Easing Presets
--- ============================================
-LZYUI.EasingPresets = {
-    Default = {Enum.EasingStyle.Quad, Enum.EasingDirection.Out},
-    Bounce = {Enum.EasingStyle.Bounce, Enum.EasingDirection.Out},
-    Elastic = {Enum.EasingStyle.Elastic, Enum.EasingDirection.Out},
-    Expo = {Enum.EasingStyle.Expo, Enum.EasingDirection.Out},
-    Back = {Enum.EasingStyle.Back, Enum.EasingDirection.Out},
-    Sine = {Enum.EasingStyle.Sine, Enum.EasingDirection.Out},
-    Linear = {Enum.EasingStyle.Linear, Enum.EasingDirection.Out},
-}
 
 -- ============================================
 -- Utility Functions
@@ -462,7 +449,7 @@ function LZYUI:CreateCard(parent, height)
 end
 
 -- ============================================
--- NEW COMPONENTS
+-- NEW COMPONENTS (v2.1)
 -- ============================================
 
 -- 1. ColorPicker
@@ -690,76 +677,6 @@ function LZYUI:CreateTextBox(parent, labelText, accentColor, placeholder, defaul
             local ok, err = pcall(onChange, box.Text)
             if not ok then warn("TextBox error: " .. tostring(err)) end
         end
-    end)
-
-    return row, function() return box.Text end
-end
-
--- 3. SearchBox
-function LZYUI:CreateSearchBox(parent, labelText, accentColor, placeholder, onSearch)
-    accentColor = accentColor or self.Colors.ACCENT
-    placeholder = placeholder or "Search..."
-
-    local row = Instance.new("Frame")
-    row.Size = UDim2.new(1, 0, 0, 70)
-    row.BackgroundColor3 = self.Colors.WHITE
-    row.BorderSizePixel = 0
-    row.ZIndex = 55
-    row.Parent = parent
-    corner(row, UDim.new(0, 10))
-    stroke(row, accentColor, 1)
-
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, -20, 0, 22)
-    lbl.Position = UDim2.new(0, 14, 0, 6)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = labelText
-    lbl.TextColor3 = self.Colors.TEXT
-    lbl.TextSize = 13
-    lbl.Font = Enum.Font.GothamBold
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.ZIndex = 56
-    lbl.Parent = row
-
-    local box = Instance.new("TextBox")
-    box.Size = UDim2.new(1, -70, 0, 30)
-    box.Position = UDim2.new(0, 14, 0, 34)
-    box.BackgroundColor3 = self.Colors.BG
-    box.Text = ""
-    box.PlaceholderText = placeholder
-    box.TextColor3 = self.Colors.TEXT
-    box.PlaceholderColor3 = self.Colors.TEXT2
-    box.TextSize = 12
-    box.Font = Enum.Font.Gotham
-    box.ClearTextOnFocus = false
-    box.BorderSizePixel = 0
-    box.ZIndex = 56
-    box.Parent = row
-    corner(box, UDim.new(0, 6))
-
-    local searchBtn = Instance.new("TextButton")
-    searchBtn.Size = UDim2.new(0, 36, 0, 30)
-    searchBtn.Position = UDim2.new(1, -50, 0, 34)
-    searchBtn.BackgroundColor3 = accentColor
-    searchBtn.Text = "S"
-    searchBtn.TextColor3 = self.Colors.WHITE
-    searchBtn.TextSize = 14
-    searchBtn.Font = Enum.Font.GothamBold
-    searchBtn.BorderSizePixel = 0
-    searchBtn.ZIndex = 56
-    searchBtn.Parent = row
-    corner(searchBtn, UDim.new(0, 6))
-
-    local function doSearch()
-        if onSearch then
-            local ok, err = pcall(onSearch, box.Text)
-            if not ok then warn("SearchBox error: " .. tostring(err)) end
-        end
-    end
-
-    searchBtn.MouseButton1Click:Connect(doSearch)
-    box.FocusLost:Connect(function(enterPressed)
-        if enterPressed then doSearch() end
     end)
 
     return row, function() return box.Text end
@@ -1089,7 +1006,7 @@ function LZYUI:CreateProgressBar(parent, labelText, accentColor, value)
     pctLbl.Font = Enum.Font.GothamBold
     pctLbl.TextXAlignment = Enum.TextXAlignment.Right
     pctLbl.ZIndex = 56
-    lbl.Parent = row
+    pctLbl.Parent = row
 
     local track = Instance.new("Frame")
     track.Size = UDim2.new(1, -28, 0, 6)
@@ -1465,106 +1382,6 @@ function LZYUI:CreateImageLabel(parent, imageId, size, accentColor)
     return row, img
 end
 
--- 12. Console
-function LZYUI:CreateConsole(parent, height, accentColor)
-    accentColor = accentColor or self.Colors.ACCENT
-    height = height or 180
-
-    local card = Instance.new("Frame")
-    card.Size = UDim2.new(1, 0, 0, height)
-    card.BackgroundColor3 = self.Colors.WHITE
-    card.BorderSizePixel = 0
-    card.ZIndex = 54
-    card.Parent = parent
-    corner(card, UDim.new(0, 14))
-    stroke(card, accentColor, 1)
-
-    local scroll = Instance.new("ScrollingFrame")
-    scroll.Size = UDim2.new(1, -12, 1, -40)
-    scroll.Position = UDim2.new(0, 6, 0, 34)
-    scroll.BackgroundColor3 = self.Colors.DARK
-    scroll.ScrollBarThickness = 3
-    scroll.ScrollBarImageColor3 = accentColor
-    scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-    scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    scroll.ZIndex = 55
-    scroll.Parent = card
-    corner(scroll, UDim.new(0, 8))
-
-    local layout = Instance.new("UIListLayout")
-    layout.Padding = UDim.new(0, 2)
-    layout.SortOrder = Enum.SortOrder.LayoutOrder
-    layout.Parent = scroll
-
-    local titleLbl = Instance.new("TextLabel")
-    titleLbl.Size = UDim2.new(1, -12, 0, 24)
-    titleLbl.Position = UDim2.new(0, 6, 0, 6)
-    titleLbl.BackgroundTransparency = 1
-    titleLbl.Text = "Console"
-    titleLbl.TextColor3 = self.Colors.TEXT
-    titleLbl.TextSize = 12
-    titleLbl.Font = Enum.Font.GothamBold
-    titleLbl.TextXAlignment = Enum.TextXAlignment.Left
-    titleLbl.ZIndex = 55
-    titleLbl.Parent = card
-
-    local clearBtn = Instance.new("TextButton")
-    clearBtn.Size = UDim2.new(0, 50, 0, 22)
-    clearBtn.Position = UDim2.new(1, -58, 0, 6)
-    clearBtn.BackgroundColor3 = accentColor
-    clearBtn.Text = "Clear"
-    clearBtn.TextColor3 = self.Colors.WHITE
-    clearBtn.TextSize = 10
-    clearBtn.Font = Enum.Font.GothamBold
-    clearBtn.BorderSizePixel = 0
-    clearBtn.ZIndex = 55
-    clearBtn.Parent = card
-    corner(clearBtn, UDim.new(0, 4))
-
-    local logs = {}
-    local colors = {
-        info = Color3.fromRGB(200, 200, 200),
-        warn = Color3.fromRGB(255, 200, 100),
-        error = Color3.fromRGB(255, 100, 100),
-        success = Color3.fromRGB(100, 255, 150),
-    }
-
-    local function log(text, level)
-        level = level or "info"
-        local line = Instance.new("TextLabel")
-        line.Size = UDim2.new(1, -8, 0, 18)
-        line.BackgroundTransparency = 1
-        line.Text = tostring(text)
-        line.TextColor3 = colors[level] or colors.info
-        line.TextSize = 11
-        line.Font = Enum.Font.Code
-        line.TextXAlignment = Enum.TextXAlignment.Left
-        line.ZIndex = 56
-        line.Parent = scroll
-        local pad = Instance.new("UIPadding")
-        pad.PaddingLeft = UDim.new(0, 6)
-        pad.Parent = line
-        table.insert(logs, line)
-        if #logs > 100 then
-            logs[1]:Destroy()
-            table.remove(logs, 1)
-        end
-        scroll.CanvasPosition = Vector2.new(0, scroll.AbsoluteCanvasSize.Y)
-        return line
-    end
-
-    local function clear()
-        for _, l in ipairs(logs) do
-            l:Destroy()
-        end
-        logs = {}
-    end
-
-    clearBtn.MouseButton1Click:Connect(clear)
-
-    return card, {Log = log, Clear = clear, Logs = logs}
-end
-
 -- 14. Modal Dialog
 function LZYUI:CreateModal(title, text, buttons, onResult)
     buttons = buttons or {"OK", "Cancel"}
@@ -1851,85 +1668,6 @@ function LZYUI:CreateRangeSlider(parent, labelText, accentColor, minVal, maxVal,
     return row, function() return currentMin, currentMax end
 end
 
--- 20. ToggleGroup
-function LZYUI:CreateToggleGroup(parent, labelText, accentColor, options, defaultIdx, onChange)
-    accentColor = accentColor or self.Colors.ACCENT
-    options = options or {}
-    defaultIdx = defaultIdx or 1
-
-    local row = Instance.new("Frame")
-    row.Size = UDim2.new(1, 0, 0, 46)
-    row.BackgroundColor3 = self.Colors.WHITE
-    row.BorderSizePixel = 0
-    row.ZIndex = 55
-    row.Parent = parent
-    corner(row, UDim.new(0, 10))
-    stroke(row, accentColor, 1)
-
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, -20, 0, 22)
-    lbl.Position = UDim2.new(0, 14, 0, 6)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = labelText
-    lbl.TextColor3 = self.Colors.TEXT
-    lbl.TextSize = 13
-    lbl.Font = Enum.Font.GothamBold
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.ZIndex = 56
-    lbl.Parent = row
-
-    local container = Instance.new("Frame")
-    container.Size = UDim2.new(1, -20, 0, 28)
-    container.Position = UDim2.new(0, 10, 0, 30)
-    container.BackgroundTransparency = 1
-    container.ZIndex = 56
-    container.Parent = row
-
-    local layout = Instance.new("UIListLayout")
-    layout.FillDirection = Enum.FillDirection.Horizontal
-    layout.Padding = UDim.new(0, 6)
-    layout.SortOrder = Enum.SortOrder.LayoutOrder
-    layout.Parent = container
-
-    local selectedIdx = defaultIdx
-    local btns = {}
-
-    for i, opt in ipairs(options) do
-        local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(1 / #options, -6, 1, 0)
-        btn.BackgroundColor3 = (i == defaultIdx) and accentColor or self.Colors.BG
-        btn.Text = opt
-        btn.TextColor3 = (i == defaultIdx) and self.Colors.WHITE or self.Colors.TEXT
-        btn.TextSize = 11
-        btn.Font = Enum.Font.GothamBold
-        btn.BorderSizePixel = 0
-        btn.LayoutOrder = i
-        btn.ZIndex = 57
-        btn.Parent = container
-        corner(btn, UDim.new(0, 6))
-
-        btn.MouseButton1Click:Connect(function()
-            if selectedIdx == i then return end
-            btns[selectedIdx].BackgroundColor3 = self.Colors.BG
-            btns[selectedIdx].TextColor3 = self.Colors.TEXT
-            btn.BackgroundColor3 = accentColor
-            btn.TextColor3 = self.Colors.WHITE
-            selectedIdx = i
-            if onChange then
-                local ok, err = pcall(onChange, opt, i)
-                if not ok then warn("ToggleGroup error: " .. tostring(err)) end
-            end
-        end)
-
-        btns[i] = btn
-    end
-
-    local totalH = 30 + 28 + 10
-    row.Size = UDim2.new(1, 0, 0, totalH)
-
-    return row, function() return selectedIdx, options[selectedIdx] end
-end
-
 -- ============================================
 -- WINDOW CREATION
 -- ============================================
@@ -1956,7 +1694,6 @@ function LZYUI.new(config)
     self.Tabs = {}
     self.SelectedTab = 1
     self.IsOpen = false
-    self.Easing = config.Easing or "Default"
 
     -- Create ScreenGui
     self.ScreenGui = Instance.new("ScreenGui")
@@ -1965,7 +1702,7 @@ function LZYUI.new(config)
     self.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
     self.ScreenGui.Parent = playerGui
 
-    -- 22. UI Scale
+    -- UI Scale
     if config.UIScale then
         local uiScale = Instance.new("UIScale")
         uiScale.Scale = config.UIScale
@@ -2010,7 +1747,7 @@ function LZYUI.new(config)
     corner(self.Panel, UDim.new(0, 20))
     shadow(self.Panel)
 
-    -- 23. Blur Background
+    -- Blur Background
     if config.BlurBackground then
         self.BlurFrame = Instance.new("Frame")
         self.BlurFrame.Name = "BlurBackground"
@@ -2267,16 +2004,15 @@ function LZYUI:Show()
     self.Panel.BackgroundTransparency = 1
     self.Inner.BackgroundTransparency = 0.4
 
-    local ease = self.EasingPresets[self.Easing] or self.EasingPresets.Default
     tween(self.Panel, {
         Size = UDim2.new(self.Width, 0, self.Height, 0),
         Position = UDim2.new(targetX, 0, targetY, 0),
         BackgroundTransparency = 1,
-    }, 0.25, ease[1], ease[2])
+    }, 0.25)
 
     tween(self.Inner, {
         BackgroundTransparency = 0,
-    }, 0.25, ease[1], ease[2])
+    }, 0.25)
 end
 
 function LZYUI:Hide()
@@ -2286,15 +2022,14 @@ function LZYUI:Hide()
     local targetX = (1 - self.Width) / 2
     local targetY = (1 - self.Height) / 2 - 0.05
 
-    local ease = self.EasingPresets[self.Easing] or self.EasingPresets.Default
     tween(self.Panel, {
         Size = UDim2.new(self.Width * 0.85, 0, self.Height * 0.85, 0),
         Position = UDim2.new(targetX + self.Width * 0.075, 0, targetY + self.Height * 0.075, 0),
-    }, 0.2, ease[1], ease[2])
+    }, 0.2)
 
     tween(self.Inner, {
         BackgroundTransparency = 0.4,
-    }, 0.2, ease[1], ease[2])
+    }, 0.2)
 
     if self.BlurFrame then
         tween(self.BlurFrame, {BackgroundTransparency = 1}, 0.2)
@@ -2332,3 +2067,368 @@ function LZYUI:Destroy()
         self.ScreenGui:Destroy()
     end
 end
+
+-- ============================================
+-- TAB SYSTEM
+-- ============================================
+function LZYUI:AddTab(name, icon, accentColor)
+    accentColor = accentColor or self.Colors.ACCENT
+    icon = icon or ""
+
+    local idx = #self.Tabs + 1
+
+    -- Nav button
+    local btn = Instance.new("TextButton")
+    btn.Name = name
+    btn.Size = UDim2.new(1, 0, 0, 56)
+    btn.BackgroundColor3 = (idx == 1) and accentColor or self.Colors.WHITE
+    btn.BackgroundTransparency = 0
+    btn.Text = icon
+    btn.TextColor3 = self.Colors.TEXT
+    btn.TextSize = 20
+    btn.Font = Enum.Font.GothamBold
+    btn.BorderSizePixel = 0
+    btn.AutoButtonColor = false
+    btn.LayoutOrder = idx
+    btn.ZIndex = 53
+    btn.Parent = self.Nav
+    corner(btn, UDim.new(0, 14))
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, 0, 0, 14)
+    lbl.Position = UDim2.new(0, 0, 1, -14)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = name
+    lbl.TextColor3 = self.Colors.TEXT2
+    lbl.TextSize = 10
+    lbl.Font = Enum.Font.Gotham
+    lbl.ZIndex = 54
+    lbl.Parent = btn
+
+    self.NavButtons[idx] = btn
+
+    -- Content page
+    local page = Instance.new("ScrollingFrame")
+    page.Name = name
+    page.Size = UDim2.new(1, 0, 1, 0)
+    page.BackgroundTransparency = 1
+    page.ScrollBarThickness = 3
+    page.ScrollBarImageColor3 = accentColor
+    page.CanvasSize = UDim2.new(0, 0, 0, 600)
+    page.Visible = (idx == 1)
+    page.ZIndex = 53
+    page.Parent = self.Content
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 8)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Parent = page
+
+    local padding = Instance.new("UIPadding")
+    padding.PaddingLeft = UDim.new(0, 10)
+    padding.PaddingRight = UDim.new(0, 10)
+    padding.PaddingTop = UDim.new(0, 12)
+    padding.PaddingBottom = UDim.new(0, 12)
+    padding.Parent = page
+
+    -- Page title
+    local divider = self:CreateDivider(page, accentColor)
+    divider.LayoutOrder = 1
+
+    local titleLbl = Instance.new("TextLabel")
+    titleLbl.Size = UDim2.new(1, 0, 0, 28)
+    titleLbl.BackgroundTransparency = 1
+    titleLbl.Text = name
+    titleLbl.TextColor3 = self.Colors.TEXT
+    titleLbl.TextSize = 18
+    titleLbl.Font = Enum.Font.GothamBold
+    titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+    titleLbl.LayoutOrder = 2
+    titleLbl.ZIndex = 54
+    titleLbl.Parent = page
+
+    -- Container
+    local container = Instance.new("Frame")
+    container.Name = "Container"
+    container.Size = UDim2.new(1, 0, 0, 0)
+    container.BackgroundTransparency = 1
+    container.LayoutOrder = 3
+    container.ZIndex = 54
+    container.Parent = page
+
+    local containerLayout = Instance.new("UIListLayout")
+    containerLayout.Padding = UDim.new(0, 8)
+    containerLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    containerLayout.Parent = container
+
+    -- Auto update canvas size
+    local function updateCanvas()
+        container.Size = UDim2.new(1, 0, 0, containerLayout.AbsoluteContentSize.Y)
+        page.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 24)
+    end
+    containerLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvas)
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvas)
+    task.delay(0.1, updateCanvas)
+
+    -- Tab switch
+    btn.MouseButton1Click:Connect(function()
+        self:SwitchTab(idx)
+    end)
+
+    local tabObj = {
+        Name = name,
+        Page = page,
+        Container = container,
+        AccentColor = accentColor,
+        Index = idx,
+        Elements = {},
+    }
+
+    -- Shortcut methods
+    function tabObj:AddToggle(label, callback)
+        local el, getVal = self.Window:CreateToggle(self.Container, label, self.AccentColor, callback)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "Toggle", Element = el, GetValue = getVal})
+        return el, getVal
+    end
+
+    function tabObj:AddSlider(label, min, max, default, callback)
+        local el, getVal = self.Window:CreateSlider(self.Container, label, self.AccentColor, min, max, default, callback)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "Slider", Element = el, GetValue = getVal})
+        return el, getVal
+    end
+
+    function tabObj:AddDropdown(label, options, default, callback)
+        local el, getVal = self.Window:CreateDropdown(self.Container, label, self.AccentColor, options, default, callback)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "Dropdown", Element = el, GetValue = getVal})
+        return el, getVal
+    end
+
+    function tabObj:AddButton(label, callback)
+        local el = self.Window:CreateButton(self.Container, label, self.AccentColor, callback)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "Button", Element = el})
+        return el
+    end
+
+    function tabObj:AddLabel(text, size, color)
+        local el = self.Window:CreateLabel(self.Container, text, size, color)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "Label", Element = el})
+        return el
+    end
+
+    function tabObj:AddCard(height)
+        local el = self.Window:CreateCard(self.Container, height)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "Card", Element = el})
+        return el
+    end
+
+    -- NEW component shortcuts
+    function tabObj:AddColorPicker(label, defaultColor, callback)
+        local el, getVal = self.Window:CreateColorPicker(self.Container, label, self.AccentColor, defaultColor, callback)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "ColorPicker", Element = el, GetValue = getVal})
+        return el, getVal
+    end
+
+    function tabObj:AddTextBox(label, placeholder, defaultText, callback)
+        local el, getVal = self.Window:CreateTextBox(self.Container, label, self.AccentColor, placeholder, defaultText, callback)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "TextBox", Element = el, GetValue = getVal})
+        return el, getVal
+    end
+
+    function tabObj:AddMultiSelect(label, options, callback)
+        local el, getVal = self.Window:CreateMultiSelect(self.Container, label, self.AccentColor, options, callback)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "MultiSelect", Element = el, GetValue = getVal})
+        return el, getVal
+    end
+
+    function tabObj:AddKeybind(label, defaultKey, callback)
+        local el, getVal = self.Window:CreateKeybind(self.Container, label, self.AccentColor, defaultKey, callback)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "Keybind", Element = el, GetValue = getVal})
+        return el, getVal
+    end
+
+    function tabObj:AddNumberBox(label, min, max, default, callback)
+        local el, getVal = self.Window:CreateNumberBox(self.Container, label, self.AccentColor, min, max, default, callback)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "NumberBox", Element = el, GetValue = getVal})
+        return el, getVal
+    end
+
+    function tabObj:AddProgressBar(label, value)
+        local el, setVal, getVal = self.Window:CreateProgressBar(self.Container, label, self.AccentColor, value)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "ProgressBar", Element = el, SetValue = setVal, GetValue = getVal})
+        return el, setVal, getVal
+    end
+
+    function tabObj:AddList(height)
+        local el, api = self.Window:CreateList(self.Container, height, self.AccentColor)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "List", Element = el, API = api})
+        return el, api
+    end
+
+    function tabObj:AddTable(headers, height)
+        local el, api = self.Window:CreateTable(self.Container, headers, height, self.AccentColor)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "Table", Element = el, API = api})
+        return el, api
+    end
+
+    function tabObj:AddCollapsible(title)
+        local el, content = self.Window:CreateCollapsible(self.Container, title, self.AccentColor)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "Collapsible", Element = el, Content = content})
+        return el, content
+    end
+
+    function tabObj:AddSubTabs(tabNames)
+        local el, tabs = self.Window:CreateSubTabs(self.Container, tabNames, self.AccentColor)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "SubTabs", Element = el, Tabs = tabs})
+        return el, tabs
+    end
+
+    function tabObj:AddImageLabel(imageId, size)
+        local el, img = self.Window:CreateImageLabel(self.Container, imageId, size, self.AccentColor)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "ImageLabel", Element = el, Image = img})
+        return el, img
+    end
+
+    function tabObj:AddCopyButton(textToCopy, label)
+        local el = self.Window:CreateCopyButton(self.Container, textToCopy, label, self.AccentColor)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "CopyButton", Element = el})
+        return el
+    end
+
+    function tabObj:AddRangeSlider(label, min, max, defaultMin, defaultMax, callback)
+        local el, getVal = self.Window:CreateRangeSlider(self.Container, label, self.AccentColor, min, max, defaultMin, defaultMax, callback)
+        el.LayoutOrder = #self.Elements + 1
+        table.insert(self.Elements, {Type = "RangeSlider", Element = el, GetValue = getVal})
+        return el, getVal
+    end
+
+    tabObj.Window = self
+
+    self.Tabs[idx] = tabObj
+    return tabObj
+end
+
+function LZYUI:SwitchTab(idx)
+    if self.SelectedTab == idx then
+        self.NavButtons[idx].BackgroundColor3 = math.random() > 0.5 and self.Colors.PRIMARY or self.Colors.ACCENT
+        return
+    end
+
+    if self.NavButtons[self.SelectedTab] then
+        self.NavButtons[self.SelectedTab].BackgroundColor3 = self.Colors.WHITE
+    end
+
+    if self.NavButtons[idx] then
+        self.NavButtons[idx].BackgroundColor3 = self.Tabs[idx].AccentColor
+    end
+
+    if self.Tabs[self.SelectedTab] then
+        self.Tabs[self.SelectedTab].Page.Visible = false
+    end
+
+    if self.Tabs[idx] then
+        self.Tabs[idx].Page.Visible = true
+        self.Tabs[idx].Page.Position = UDim2.new(0.05, 0, 0, 0)
+        tween(self.Tabs[idx].Page, {Position = UDim2.new(0, 0, 0, 0)}, 0.25)
+    end
+
+    self.SelectedTab = idx
+end
+
+-- ============================================
+-- NOTIFICATION SYSTEM
+-- ============================================
+function LZYUI:Notify(title, text, duration)
+    duration = duration or 3
+
+    local notif = Instance.new("Frame")
+    notif.Size = UDim2.new(0, 280, 0, 80)
+    notif.Position = UDim2.new(0, -300, 0, -100)
+    notif.BackgroundColor3 = self.Colors.WHITE
+    notif.BorderSizePixel = 0
+    notif.ZIndex = 200
+    notif.Parent = self.ScreenGui
+    corner(notif, UDim.new(0, 14))
+    shadow(notif, 6, 0.8)
+
+    local notifStroke = Instance.new("UIStroke")
+    notifStroke.Color = self.Colors.ACCENT
+    notifStroke.Thickness = 1.5
+    notifStroke.Transparency = 0.3
+    notifStroke.Parent = notif
+
+    local titleLbl = Instance.new("TextLabel")
+    titleLbl.Size = UDim2.new(1, -20, 0, 22)
+    titleLbl.Position = UDim2.new(0, 10, 0, 8)
+    titleLbl.BackgroundTransparency = 1
+    titleLbl.Text = title
+    titleLbl.TextColor3 = self.Colors.TEXT
+    titleLbl.TextSize = 14
+    titleLbl.Font = Enum.Font.GothamBold
+    titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+    titleLbl.ZIndex = 201
+    titleLbl.Parent = notif
+
+    local textLbl = Instance.new("TextLabel")
+    textLbl.Size = UDim2.new(1, -20, 0, 40)
+    textLbl.Position = UDim2.new(0, 10, 0, 30)
+    textLbl.BackgroundTransparency = 1
+    textLbl.Text = text
+    textLbl.TextColor3 = self.Colors.TEXT2
+    textLbl.TextSize = 12
+    textLbl.Font = Enum.Font.Gotham
+    textLbl.TextXAlignment = Enum.TextXAlignment.Left
+    textLbl.TextWrapped = true
+    textLbl.ZIndex = 201
+    textLbl.Parent = notif
+
+    tween(notif, {Position = UDim2.new(0, 20, 0, 20)}, 0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+
+    task.delay(duration, function()
+        tween(notif, {Position = UDim2.new(0, -300, 0, -100)}, 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+        task.wait(0.3)
+        notif:Destroy()
+    end)
+end
+
+-- ============================================
+-- THEME SWITCHING
+-- ============================================
+function LZYUI:SetTheme(theme)
+    if theme == "dark" then
+        self.Colors.BG = Color3.fromRGB(35, 35, 42)
+        self.Colors.TEXT = Color3.fromRGB(230, 230, 240)
+        self.Colors.TEXT2 = Color3.fromRGB(160, 160, 170)
+        self.Colors.WHITE = Color3.fromRGB(50, 50, 58)
+        self.Colors.GRAY = Color3.fromRGB(80, 80, 90)
+    elseif theme == "light" then
+        self.Colors.BG = Color3.fromRGB(245, 245, 247)
+        self.Colors.TEXT = Color3.fromRGB(55, 55, 65)
+        self.Colors.TEXT2 = Color3.fromRGB(110, 110, 120)
+        self.Colors.WHITE = Color3.fromRGB(255, 255, 255)
+        self.Colors.GRAY = Color3.fromRGB(190, 190, 190)
+    end
+    self:Notify("Theme", "Theme switched to " .. theme .. ", restart to fully apply", 2)
+end
+
+-- ============================================
+-- RETURN LIBRARY
+-- ============================================
+return LZYUI
