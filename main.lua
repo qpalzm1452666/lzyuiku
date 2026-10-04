@@ -11913,22 +11913,10 @@ at=-28-(Window.UIPadding/2)
 ar.UIElements.Main.Frame.TextLabel.Size=UDim2.new(1,at,0,0)
 end
 
-local isUrl=type(ar.Icon)=="string"and ar.Icon:sub(1,4)=="http"
 av=
-ak.Image(isUrl and"lucide:image"or ar.Icon,ar.Icon..":"..ar.Title,0,Window.Folder,ar.__type,true,ar.IconThemed)
+ak.Image(ar.Icon,ar.Icon..":"..ar.Title,0,Window.Folder,ar.__type,true,ar.IconThemed)
 av.Size=UDim2.new(0,16,0,16)
 av.ImageLabel.ImageTransparency=not ar.Locked and 0 or 0.7
-if isUrl then
-task.spawn(function()
-local ok,res=pcall(function()
-return ak.LoadCustomAsset(ar.Icon)
-end)
-if ok and type(res)=="string"and av.Parent then
-av.ImageLabel.Image=res
-av.ImageLabel.ImageTransparency=not ar.Locked and 0 or 0.7
-end
-end)
-end
 at=-30
 
 
@@ -16146,7 +16134,7 @@ end)
 end
 end
 end
-return card,ai
+return ai,card
 end
 
 function M.ButtonCard(at,win,grid)
@@ -16160,7 +16148,7 @@ end)
 if ai.Flag and typeof(ai.Flag)=="string"and win.CurrentConfig then
 win.CurrentConfig:Register(ai.Flag,ai)
 end
-return card,ai
+return ai,card
 end
 
 return M
