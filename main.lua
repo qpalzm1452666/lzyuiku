@@ -15853,7 +15853,7 @@ local SafeCallback=cr.SafeCallback
 local NewRoundFrame=cr.NewRoundFrame
 
 local M={}
-local CARD_SIZE=104
+local CARD_SIZE=88
 local MAX_CARDS=50
 local MODS={Button="E",Toggle="H",Slider="I",Input="L",Dropdown="O",ColorPicker="S"}
 
@@ -15863,6 +15863,12 @@ local cf=tabObj.UIElements.ContainerFrame
 if not cf then return nil end
 local g=cf:FindFirstChild"LinCardGrid"
 if not g then
+local gl=New("UIGridLayout",{
+CellSize=UDim2.new(0,CARD_SIZE,0,CARD_SIZE),
+CellPadding=UDim2.new(0,8,0,8),
+SortOrder="LayoutOrder",
+HorizontalAlignment="Left",
+})
 g=New("Frame",{
 Name="LinCardGrid",
 BackgroundTransparency=1,
@@ -15870,14 +15876,15 @@ Size=UDim2.new(1,0,0,0),
 AutomaticSize="Y",
 LayoutOrder=-9999,
 Parent=cf,
-},{
-New("UIGridLayout",{
-CellSize=UDim2.new(0,CARD_SIZE,0,CARD_SIZE),
-CellPadding=UDim2.new(0,8,0,8),
-SortOrder="LayoutOrder",
-HorizontalAlignment="Left",
-}),
-})
+},{gl})
+AddSignal(g:GetPropertyChangedSignal"AbsoluteSize",function()
+local w=g.AbsoluteSize.X
+if w<120 then return end
+local gap=8
+local cols=math.max(2,math.floor((w+gap)/(CARD_SIZE+gap)))
+local cell=math.floor((w-(cols-1)*gap)/cols)
+gl.CellSize=UDim2.new(0,cell,0,cell)
+end)
 end
 return g
 end
@@ -15902,27 +15909,35 @@ end
 end)
 end
 
-local function buildShell(grid,title,iconUrl,borderColor)
+local function buildShell(win,grid,title,iconUrl,borderColor)
 local outline=NewRoundFrame(16,"SquircleOutline",{
 Name="LinOutline",
 Size=UDim2.new(1,0,1,0),
 ThemeTag={ImageColor3="Outline"},
 ImageTransparency=0.6,
 })
+local icon
+if iconUrl then
+icon=cr.Image(tostring(iconUrl),tostring(iconUrl)..":"..tostring(title),0,win.Folder,"LinCard",true,false)
+icon.Name="LinIcon"
+icon.Size=UDim2.new(0.36,0,0.36,0)
+icon.Position=UDim2.new(0.5,0,0.14,0)
+icon.AnchorPoint=Vector2.new(0.5,0)
+icon.ImageLabel.ImageTransparency=0.25
+end
+local titleL=New("TextLabel",{Name="LinTitle",BackgroundTransparency=1,Text=title or"模块",FontFace=Font.new(cr.Font,Enum.FontWeight.Medium),TextSize=12,TextXAlignment="Center",TextTruncate="AtEnd",TextWrapped=true,Size=UDim2.new(1,-14,0,26),Position=UDim2.new(0.5,0,1,-10),AnchorPoint=Vector2.new(0.5,1),ThemeTag={TextColor3="Text"}})
+local dot=New("Frame",{Name="LinDot",BackgroundTransparency=1,Size=UDim2.new(0,7,0,7),Position=UDim2.new(1,-12,0,12),AnchorPoint=Vector2.new(1,0)},{New("UICorner",{CornerRadius=UDim.new(1,0)})})
+local hit=New("TextButton",{Name="LinHit",Text="",BackgroundTransparency=1,Size=UDim2.new(1,0,1,0)})
+local kids={outline}
+if icon then table.insert(kids,icon) end
+table.insert(kids,titleL)
+table.insert(kids,dot)
+table.insert(kids,hit)
 local card=NewRoundFrame(16,"Squircle",{
 Size=UDim2.new(0,CARD_SIZE,0,CARD_SIZE),
 Parent=grid,
 ThemeTag={ImageColor3="ElementBackground"},
-},{
-outline,
-New("ImageLabel",{Name="LinIcon",BackgroundTransparency=1,ImageTransparency=0.25,Size=UDim2.new(0,40,0,40),Position=UDim2.new(0.5,0,0,14),AnchorPoint=Vector2.new(0.5,0)}),
-New("TextLabel",{Name="LinTitle",BackgroundTransparency=1,Text=title or"模块",FontFace=Font.new(cr.Font,Enum.FontWeight.Medium),TextSize=12,TextXAlignment="Center",TextTruncate="AtEnd",TextWrapped=true,Size=UDim2.new(1,-16,0,28),Position=UDim2.new(0.5,0,1,-32),AnchorPoint=Vector2.new(0.5,1),ThemeTag={TextColor3="Text"}}),
-New("Frame",{Name="LinDot",BackgroundTransparency=1,Size=UDim2.new(0,7,0,7),Position=UDim2.new(1,-12,0,12),AnchorPoint=Vector2.new(1,0)},{New("UICorner",{CornerRadius=UDim.new(1,0)})}),
-New("TextButton",{Name="LinHit",Text="",BackgroundTransparency=1,Size=UDim2.new(1,0,1,0)}),
-})
-if iconUrl then
-loadIcon(card:FindFirstChild"LinIcon",iconUrl)
-end
+},kids)
 if borderColor then
 local o=outline
 if typeof(borderColor)=="Color3"then
@@ -15941,7 +15956,8 @@ end
 local function applyState(card,ai)
 local tl=card:FindFirstChild"LinTitle"
 local dot=card:FindFirstChild"LinDot"
-local ic=card:FindFirstChild"LinIcon"
+local icw=card:FindFirstChild"LinIcon"
+local ic=icw and (icw.ImageLabel or icw) or nil
 if ai.Locked then
 cr.SetThemeTag(card,{ImageColor3="ElementBackground"},0.4)
 if tl then cr.SetThemeTag(tl,{TextColor3="Text"},0.4) end
@@ -16048,7 +16064,7 @@ local ai=at
 ai.__type="Toggle"
 ai.Locked=ai.Locked or false
 if ai.Value==nil then ai.Value=false end
-local card=buildShell(grid,ai.Title,ai.Icon)
+local card=buildShell(win,grid,ai.Title,ai.Icon)
 local hit=card:FindFirstChild"LinHit"
 function ai.Set(self,v)
 v=v and true or false
@@ -16140,7 +16156,7 @@ end
 function M.ButtonCard(at,win,grid)
 local ai=at
 ai.__type="Button"
-local card=buildShell(grid,ai.Title,ai.Icon,ai.BorderColor or"Accent")
+local card=buildShell(win,grid,ai.Title,ai.Icon,ai.BorderColor or"Accent")
 local hit=card:FindFirstChild"LinHit"
 AddSignal(hit.MouseButton1Click,function()
 SafeCallback(ai.Callback)
