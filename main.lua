@@ -11913,10 +11913,22 @@ at=-28-(Window.UIPadding/2)
 ar.UIElements.Main.Frame.TextLabel.Size=UDim2.new(1,at,0,0)
 end
 
+local isUrl=type(ar.Icon)=="string"and ar.Icon:sub(1,4)=="http"
 av=
-ak.Image(ar.Icon,ar.Icon..":"..ar.Title,0,Window.Folder,ar.__type,true,ar.IconThemed)
+ak.Image(isUrl and"lucide:image"or ar.Icon,ar.Icon..":"..ar.Title,0,Window.Folder,ar.__type,true,ar.IconThemed)
 av.Size=UDim2.new(0,16,0,16)
 av.ImageLabel.ImageTransparency=not ar.Locked and 0 or 0.7
+if isUrl then
+task.spawn(function()
+local ok,res=pcall(function()
+return ak.LoadCustomAsset(ar.Icon)
+end)
+if ok and type(res)=="string"and av.Parent then
+av.ImageLabel.Image=res
+av.ImageLabel.ImageTransparency=not ar.Locked and 0 or 0.7
+end
+end)
+end
 at=-30
 
 
@@ -14183,15 +14195,17 @@ end
 
 if aw.IsOpenButtonEnabled~=false then
 do
-local pill=an.NewRoundFrame(999,"Squircle",{
+local pill=an.New("Frame",{
 Name="LinCapsule",
 Size=UDim2.new(0,0,0,34),
 AutomaticSize="X",
 Position=UDim2.new(0.5,0,0,10),
 AnchorPoint=Vector2.new(0.5,0),
+BackgroundColor3=Color3.fromHex"#ffffff",
+BorderSizePixel=0,
 ZIndex=99999,
 Parent=av.WindUI.ScreenGui,
-ThemeTag={ImageColor3="Dialog"},
+ThemeTag={BackgroundColor3="Dialog"},
 },{
 an.New("UICorner",{CornerRadius=UDim.new(1,0)}),
 an.New("UIStroke",{Name="LinStroke",Thickness=1,ThemeTag={Color="Outline"},Transparency=0.4}),
@@ -14214,8 +14228,8 @@ Visible=false,
 ZIndex=2,
 },{
 an.New("Frame",{Name="LinDot",Size=UDim2.new(0,8,0,8),Position=UDim2.new(0,2,0.5,0),AnchorPoint=Vector2.new(0,0.5),BackgroundColor3=Color3.new(1,1,1)},{an.New("UICorner",{CornerRadius=UDim.new(1,0)})}),
-an.New("TextLabel",{Name="LinTitle",BackgroundTransparency=1,FontFace=Font.new(an.Font,Enum.FontWeight.Medium),TextSize=13,TextXAlignment="Left",TextTruncate="End",Text="",TextColor3=Color3.new(1,1,1),Size=UDim2.new(1,-40,0,16),Position=UDim2.new(0,18,0,6)}),
-an.New("TextLabel",{Name="LinContent",BackgroundTransparency=1,FontFace=Font.new(an.Font,Enum.FontWeight.Medium),TextSize=11,TextXAlignment="Left",TextTruncate="End",Text="",TextColor3=Color3.new(1,1,1),TextTransparency=0.3,Size=UDim2.new(1,-40,0,14),Position=UDim2.new(0,18,0,23)}),
+an.New("TextLabel",{Name="LinTitle",BackgroundTransparency=1,FontFace=Font.new(an.Font,Enum.FontWeight.Medium),TextSize=13,TextXAlignment="Left",TextTruncate="AtEnd",Text="",TextColor3=Color3.new(1,1,1),Size=UDim2.new(1,-40,0,16),Position=UDim2.new(0,18,0,6)}),
+an.New("TextLabel",{Name="LinContent",BackgroundTransparency=1,FontFace=Font.new(an.Font,Enum.FontWeight.Medium),TextSize=11,TextXAlignment="Left",TextTruncate="AtEnd",Text="",TextColor3=Color3.new(1,1,1),TextTransparency=0.3,Size=UDim2.new(1,-40,0,14),Position=UDim2.new(0,18,0,23)}),
 an.New("Frame",{Name="LinBar",Size=UDim2.new(1,0,0,3),Position=UDim2.new(0,0,1,-3),BackgroundColor3=Color3.new(1,1,1),BackgroundTransparency=0.2},{an.New("UICorner",{CornerRadius=UDim.new(1,0)})}),
 an.New("Frame",{Name="LinBtnRow",BackgroundTransparency=1,Size=UDim2.new(1,-30,0,20),Position=UDim2.new(0,18,1,-26),Visible=false},{an.New("UIListLayout",{Padding=UDim.new(0,6),FillDirection="Horizontal",HorizontalAlignment="Right"})}),
 }),
@@ -14232,11 +14246,11 @@ local nf=pill:FindFirstChild"LinNotify"
 local stroke=pill:FindFirstChild"LinStroke"
 local function face()
 if aw.Closed then
-an.SetThemeTag(pill,{ImageColor3="Dialog"},0)
+an.SetThemeTag(pill,{BackgroundColor3="Dialog"},0)
 an.SetThemeTag(stroke,{Color="Outline"},0.4)
 an.SetThemeTag(label,{TextColor3="Text"},0)
 else
-an.SetThemeTag(pill,{ImageColor3="Accent"},0)
+an.SetThemeTag(pill,{BackgroundColor3="Accent"},0)
 an.SetThemeTag(stroke,{Color="Accent"},1)
 an.SetThemeTag(label,{TextColor3="Background"},0)
 end
@@ -15873,7 +15887,7 @@ New("UIGridLayout",{
 CellSize=UDim2.new(0,CARD_SIZE,0,CARD_SIZE),
 CellPadding=UDim2.new(0,8,0,8),
 SortOrder="LayoutOrder",
-HorizontalAlignment="Center",
+HorizontalAlignment="Left",
 }),
 })
 end
@@ -15914,7 +15928,7 @@ ThemeTag={ImageColor3="ElementBackground"},
 },{
 outline,
 New("ImageLabel",{Name="LinIcon",BackgroundTransparency=1,ImageTransparency=0.25,Size=UDim2.new(0,40,0,40),Position=UDim2.new(0.5,0,0,14),AnchorPoint=Vector2.new(0.5,0)}),
-New("TextLabel",{Name="LinTitle",BackgroundTransparency=1,Text=title or"模块",FontFace=Font.new(cr.Font,Enum.FontWeight.Medium),TextSize=12,TextXAlignment="Center",TextTruncate="End",TextWrapped=true,Size=UDim2.new(1,-16,0,28),Position=UDim2.new(0.5,0,1,-32),AnchorPoint=Vector2.new(0.5,1),ThemeTag={TextColor3="Text"}}),
+New("TextLabel",{Name="LinTitle",BackgroundTransparency=1,Text=title or"模块",FontFace=Font.new(cr.Font,Enum.FontWeight.Medium),TextSize=12,TextXAlignment="Center",TextTruncate="AtEnd",TextWrapped=true,Size=UDim2.new(1,-16,0,28),Position=UDim2.new(0.5,0,1,-32),AnchorPoint=Vector2.new(0.5,1),ThemeTag={TextColor3="Text"}}),
 New("Frame",{Name="LinDot",BackgroundTransparency=1,Size=UDim2.new(0,7,0,7),Position=UDim2.new(1,-12,0,12),AnchorPoint=Vector2.new(1,0)},{New("UICorner",{CornerRadius=UDim.new(1,0)})}),
 New("TextButton",{Name="LinHit",Text="",BackgroundTransparency=1,Size=UDim2.new(1,0,1,0)}),
 })
@@ -15977,10 +15991,10 @@ Parent=main,
 })
 local shade=New("TextButton",{Text="",Size=UDim2.new(1,0,1,0),BackgroundColor3=Color3.new(0,0,0),BackgroundTransparency=0.4,ZIndex=1001,Parent=overlay})
 local card=NewRoundFrame(18,"Squircle",{Name="LinPopupCard",Size=UDim2.new(0,400,0,320),Position=UDim2.new(0.5,0,0.5,0),AnchorPoint=Vector2.new(0.5,0.5),ZIndex=1002,Parent=overlay,ThemeTag={ImageColor3="Dialog"}})
-local title=New("TextLabel",{BackgroundTransparency=1,Text=ai.Title or"模块设置",FontFace=Font.new(cr.Font,Enum.FontWeight.SemiBold),TextSize=17,TextXAlignment="Left",TextTruncate="End",Size=UDim2.new(1,-90,0,24),Position=UDim2.new(0,18,0,14),ZIndex=1003,Parent=card,ThemeTag={TextColor3="Text"}})
+local title=New("TextLabel",{BackgroundTransparency=1,Text=ai.Title or"模块设置",FontFace=Font.new(cr.Font,Enum.FontWeight.SemiBold),TextSize=17,TextXAlignment="Left",TextTruncate="AtEnd",Size=UDim2.new(1,-90,0,24),Position=UDim2.new(0,18,0,14),ZIndex=1003,Parent=card,ThemeTag={TextColor3="Text"}})
 local desc
 if ai.Desc then
-desc=New("TextLabel",{BackgroundTransparency=1,Text=ai.Desc,FontFace=Font.new(cr.Font,Enum.FontWeight.Medium),TextSize=12,TextXAlignment="Left",TextTransparency=0.35,TextTruncate="End",Size=UDim2.new(1,-90,0,16),Position=UDim2.new(0,18,0,40),ZIndex=1003,Parent=card,ThemeTag={TextColor3="Placeholder"}})
+desc=New("TextLabel",{BackgroundTransparency=1,Text=ai.Desc,FontFace=Font.new(cr.Font,Enum.FontWeight.Medium),TextSize=12,TextXAlignment="Left",TextTransparency=0.35,TextTruncate="AtEnd",Size=UDim2.new(1,-90,0,16),Position=UDim2.new(0,18,0,40),ZIndex=1003,Parent=card,ThemeTag={TextColor3="Placeholder"}})
 end
 local closeBtn=New("TextButton",{Text="X",FontFace=Font.new(cr.Font,Enum.FontWeight.Medium),TextSize=15,BackgroundTransparency=1,Size=UDim2.new(0,30,0,30),Position=UDim2.new(1,-14,0,10),AnchorPoint=Vector2.new(1,0),ZIndex=1003,Parent=card,ThemeTag={TextColor3="Text"}})
 local content=New("ScrollingFrame",{BackgroundTransparency=1,Size=UDim2.new(1,-36,1,-70),Position=UDim2.new(0,18,0,desc and 62 or 48),CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize="Y",ScrollBarThickness=3,BorderSizePixel=0,ZIndex=1003,Parent=card,ThemeTag={ScrollBarImageColor3="Outline"}},{
@@ -16138,7 +16152,7 @@ end
 function M.ButtonCard(at,win,grid)
 local ai=at
 ai.__type="Button"
-local card=buildShell(grid,ai.Title,ai.Icon,ai.BorderColor)
+local card=buildShell(grid,ai.Title,ai.Icon,ai.BorderColor or"Accent")
 local hit=card:FindFirstChild"LinHit"
 AddSignal(hit.MouseButton1Click,function()
 SafeCallback(ai.Callback)
@@ -16201,7 +16215,7 @@ cap.Notifying=true
 bind(cap)
 local pill=cap.Pill
 local nf=cap.NF
-cr.SetThemeTag(pill,{ImageColor3="Dialog"},0)
+cr.SetThemeTag(pill,{BackgroundColor3="Dialog"},0)
 local stroke=pill:FindFirstChild"LinStroke"
 if stroke then
 cr.SetThemeTag(stroke,{Color="Accent"},0)
