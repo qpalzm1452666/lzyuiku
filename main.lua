@@ -11552,10 +11552,22 @@ at.Window=ak
 at.WindUI=al
 at.UIScale=ao
 if ak.CardGrid and not at.__isPopupChild and(ar==a.load'LinCard')then
-return a.load'LinCard'.ModelCard(at,ak,al,ap)
+local au, av = a.load'LinCard'.ModelCard(at,ak,al,ap)
+if au then
+ak.AllElements[at.GlobalIndex] = au
+aa.Elements[at.Index] = au
+if ap then ap.Elements[at.Index] = au end
+end
+return au, av
 end
 if ak.CardGrid and not at.__isPopupChild and(ar==a.load'H'or ar==a.load'E')then
-return a.load'LinCard'.Element(at,aa,ak,al,ao,ap,ar)
+local au, av = a.load'LinCard'.Element(at,aa,ak,al,ao,ap,ar)
+if au then
+ak.AllElements[at.GlobalIndex] = au
+aa.Elements[at.Index] = au
+if ap then ap.Elements[at.Index] = au end
+end
+return au, av
 end
 at.ElementsModule=an local
 
@@ -12185,6 +12197,15 @@ return ao:SelectTab(ar.Index)
 end
 
 task.spawn(function()
+task.wait()
+local hasChild = false
+for _, child in next, ar.UIElements.ContainerFrame:GetChildren() do
+    if child:IsA("GuiObject") then
+        hasChild = true
+        break
+    end
+end
+if hasChild then return end
 local aB
 if ar.CustomEmptyPage.Icon then
 aB=
@@ -16100,12 +16121,12 @@ cfg.Parent=pop.Content
 local id=MODS[kind]
 if not id then return nil end
 if kind=="Toggle"then cfg.Type="Toggle"end
-local ok,obj=pcall(a.load(id).New,nil,cfg)
+local ok,obj1,obj2=pcall(a.load(id).New,nil,cfg)
 if not ok then
-warn("[LinCraft] 子控件创建失败:",obj)
+warn("[LinCraft] 子控件创建失败:",obj1)
 return nil
 end
-return obj
+return obj2 or obj1
 end
 
 function M.Element(at,aa,ak,al,ao,ap,ar)
@@ -16480,4 +16501,3 @@ return M
 end
 
 return aa
-
