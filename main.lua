@@ -15944,12 +15944,6 @@ end)
 end
 
 local function buildShell(win,grid,title,iconUrl,borderColor)
-local outline=NewRoundFrame(16,"SquircleOutline",{
-Name="LinOutline",
-Size=UDim2.new(1,0,1,0),
-ThemeTag={ImageColor3="Outline"},
-ImageTransparency=0.6,
-})
 local icon
 if iconUrl then
 icon=cr.Image(tostring(iconUrl),tostring(iconUrl)..":"..tostring(title),0,win.Folder,"LinCard",true,false)
@@ -15962,7 +15956,7 @@ end
 local titleL=New("TextLabel",{Name="LinTitle",BackgroundTransparency=1,Text=title or"模块",FontFace=Font.new(cr.Font,Enum.FontWeight.Medium),TextSize=12,TextXAlignment="Right",TextTruncate="AtEnd",TextWrapped=true,Size=UDim2.new(0.72,0,0,26),Position=UDim2.new(1,-10,1,-10),AnchorPoint=Vector2.new(1,1),ThemeTag={TextColor3="Text"}})
 local dot=New("Frame",{Name="LinDot",BackgroundTransparency=1,Size=UDim2.new(0,7,0,7),Position=UDim2.new(1,-12,0,12),AnchorPoint=Vector2.new(1,0)},{New("UICorner",{CornerRadius=UDim.new(1,0)})})
 local hit=New("TextButton",{Name="LinHit",Text="",BackgroundTransparency=1,Size=UDim2.new(1,0,1,0)})
-local kids={outline}
+local kids={}
 if icon then table.insert(kids,icon) end
 table.insert(kids,titleL)
 table.insert(kids,dot)
@@ -15973,16 +15967,6 @@ Parent=grid,
 ThemeTag={ImageColor3="ElementBackground"},
 },kids)
 if borderColor then
-local o=outline
-if typeof(borderColor)=="Color3"then
-o.ImageColor3=borderColor
-o.ImageTransparency=0
-elseif borderColor=="Accent"then
-cr.SetThemeTag(o,{ImageColor3="Accent"},0)
-elseif type(borderColor)=="string"and borderColor:sub(1,1)=="#"then
-o.ImageColor3=Color3.fromHex(borderColor)
-o.ImageTransparency=0
-end
 end
 return card
 end
@@ -16238,8 +16222,6 @@ ImageTransparency=1,
 ZIndex=100000,
 Parent=win.UIElements.Main,
 ThemeTag={ImageColor3="ElementBackground"},
-},{
-New("UIStroke",{Thickness=1,ThemeTag={Color="Outline"},Transparency=0.55}),
 })
 local vp=New("ViewportFrame",{
 BackgroundTransparency=1,
@@ -16323,7 +16305,7 @@ local SafeCallback=cr.SafeCallback
 local W=aa
 local M={}
 local IslandCfg={Width=240,WidthButtons=310,Height=52,CollapsedHeight=34,Bg="Text",Duration=4}
-local queue={}
+local current=nil
 local playing=false
 
 local function getCapsule()
@@ -16354,7 +16336,8 @@ if not cap then
 playing=false
 return
 end
-local cfg=table.remove(queue,1)
+local cfg=current
+current=nil
 if not cfg then
 playing=false
 return
@@ -16362,6 +16345,8 @@ end
 playing=true
 cap.Notifying=true
 bind(cap)
+local tok={}
+cap.Tok=tok
 local pill=cap.Pill
 local nf=cap.NF
 local bg=IslandCfg.Bg or"Text"
@@ -16441,6 +16426,7 @@ if cap.Dot then
 Tween(cap.Dot,0.15,{BackgroundTransparency=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end
 task.delay(0.14,function()
+if cap.Tok~=tok then return end
 nf.Visible=false
 cap.BtnRow.Visible=false
 cap.Dot.BackgroundTransparency=0
@@ -16448,6 +16434,7 @@ cap.Label.Visible=true
 pill.AutomaticSize="X"
 Tween(pill,0.24,{Size=UDim2.new(0,0,0,IslandCfg.CollapsedHeight)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 task.delay(0.26,function()
+if cap.Tok~=tok then return end
 cap.Notifying=false
 cap.SetFace()
 playNext()
@@ -16463,10 +16450,30 @@ end
 end
 
 function M.Notify(cfg)
-table.insert(queue,cfg or {})
-if not playing then
-task.spawn(playNext)
+current=cfg or{}
+local cap=getCapsule()
+if cap then
+cap.Tok=nil
+if cap.Thread then
+pcall(task.cancel,cap.Thread)
+cap.Thread=nil
 end
+if cap.Notifying then
+cap.Notifying=false
+local nf=cap.NF
+if nf then nf.Visible=false end
+if cap.BtnRow then cap.BtnRow.Visible=false end
+if cap.Dot then cap.Dot.BackgroundTransparency=0 end
+if cap.Label then cap.Label.Visible=true end
+local pill=cap.Pill
+if pill then
+pill.AutomaticSize="X"
+pill.Size=UDim2.new(0,0,0,IslandCfg.CollapsedHeight)
+end
+cap.SetFace()
+end
+end
+task.spawn(playNext)
 end
 
 function M.Configure(t)
