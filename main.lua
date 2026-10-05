@@ -14236,10 +14236,9 @@ ThemeTag={TextColor3="Text"},
 an.New("Frame",{
 Name="LinNotify",
 BackgroundTransparency=1,
-Active=true,
 Size=UDim2.new(1,0,1,0),
 Visible=false,
-ZIndex=2,
+ZIndex=4,
 },{
 an.New("Frame",{Name="LinDot",Size=UDim2.new(0,8,0,8),Position=UDim2.new(0,2,0.5,0),AnchorPoint=Vector2.new(0,0.5),BackgroundColor3=Color3.new(1,1,1)},{an.New("UICorner",{CornerRadius=UDim.new(1,0)})}),
 an.New("TextLabel",{Name="LinTitle",BackgroundTransparency=1,FontFace=Font.new(an.Font,Enum.FontWeight.Medium),TextSize=13,TextXAlignment="Left",TextTruncate="AtEnd",Text="",TextColor3=Color3.new(1,1,1),Size=UDim2.new(1,-40,0,16),Position=UDim2.new(0,18,0,6)}),
@@ -14849,7 +14848,7 @@ else
 aw:Close()
 end
 if aw.Capsule then
-task.defer(aw.Capsule.SetFace)
+task.delay(0.15,aw.Capsule.SetFace)
 end
 end)
 end
@@ -16323,7 +16322,7 @@ local AddSignal=cr.AddSignal
 local SafeCallback=cr.SafeCallback
 local W=aa
 local M={}
-local IslandCfg={Width=240,WidthButtons=310,Height=52,CollapsedHeight=34,Bg="Accent"}
+local IslandCfg={Width=240,WidthButtons=310,Height=52,CollapsedHeight=34,Bg="Text",Duration=4}
 local queue={}
 local playing=false
 
@@ -16339,8 +16338,7 @@ end
 local function bind(cap)
 if cap.ClickBound then return end
 cap.ClickBound=true
-AddSignal(cap.NF.InputBegan,function(io)
-if io.UserInputType~=Enum.UserInputType.MouseButton1 and io.UserInputType~=Enum.UserInputType.Touch then return end
+AddSignal(cap.Hit.MouseButton1Click,function()
 if cap.Notifying and cap.Finish then
 if cap.Thread then
 pcall(task.cancel,cap.Thread)
@@ -16365,68 +16363,80 @@ playing=true
 cap.Notifying=true
 bind(cap)
 local pill=cap.Pill
-local nf=cap.NF
-cr.SetThemeTag(pill,{BackgroundColor3=IslandCfg.Bg or"Accent"},0)
+local label=cap.Label
 local stroke=pill:FindFirstChild"LinStroke"
+local pad=pill:FindFirstChildOfClass"UIPadding"
+cap.RestText=label.Text
+local text=(cfg.Title and cfg.Content)and(cfg.Title.."  "..cfg.Content)or(cfg.Content or cfg.Title or"通知")
+local bg=IslandCfg.Bg or"Text"
+if type(bg)=="string"and bg:sub(1,1)=="#"then
+pcall(function()pill.BackgroundColor3=Color3.fromHex(bg)end)
+else
+cr.SetThemeTag(pill,{BackgroundColor3=bg},0)
+end
 if stroke then
 stroke.Transparency=0.7
 stroke.Color=Color3.new(1,1,1)
 end
-if cap.Dot then
-cap.Dot.BackgroundColor3=Color3.new(1,1,1)
-end
-if cap.Title then
-cap.Title.TextColor3=Color3.new(1,1,1)
-cap.Title.Text=cfg.Title or"通知"
-end
-if cap.Content then
-cap.Content.TextColor3=Color3.new(1,1,1)
-cap.Content.TextTransparency=0.25
-cap.Content.Text=cfg.Content or""
-end
-cap.Label.Visible=false
-nf.Visible=true
-if cfg.Buttons and #cfg.Buttons>0 then
-for _,c in next,cap.BtnRow:GetChildren() do
-if c:IsA"TextButton"then c:Destroy() end
-end
-for _,b in next,cfg.Buttons do
-local btn=New("TextButton",{Text=b.Title or"按钮",FontFace=Font.new(cr.Font,Enum.FontWeight.Medium),TextSize=11,Size=UDim2.new(0,64,0,20),BackgroundColor3=Color3.new(1,1,1),BackgroundTransparency=0.9,Parent=cap.BtnRow},{New("UICorner",{CornerRadius=UDim.new(1,0)})})
-AddSignal(btn.MouseButton1Click,function()
-SafeCallback(b.Callback)
-end)
-end
-cap.BtnRow.Visible=true
-end
 pill.AutomaticSize="None"
-local width=IslandCfg.Width
-if cfg.Buttons and #cfg.Buttons>0 then width=IslandCfg.WidthButtons or width+70 end
-Tween(pill,0.3,{Size=UDim2.new(0,width,0,IslandCfg.Height)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-local bar=cap.Bar
-if bar then
-bar.Size=UDim2.new(1,0,0,3)
+label.TextWrapped=false
+label.AutomaticSize="Y"
+label.Size=UDim2.new(0,0,0,0)
+label.TextTransparency=1
+label.TextColor3=Color3.new(1,1,1)
+label.Position=UDim2.new(0,0,0.5,0)
+label.AnchorPoint=Vector2.new(0,0.5)
+label.Text=text
+task.wait()
+local tw=label.TextBounds.X
+local sg=W.ScreenGui
+local sgW=sg and sg.AbsoluteSize.X or 400
+local maxW=math.max(160,sgW-48)
+local lw=math.min(tw,maxW)
+label.TextWrapped=true
+label.Size=UDim2.new(0,lw,0,0)
+task.wait()
+local lh=label.AbsoluteSize.Y
+if pad then
+pad.PaddingLeft=UDim.new(0,16)
+pad.PaddingRight=UDim.new(0,16)
+pad.PaddingTop=UDim.new(0,10)
+pad.PaddingBottom=UDim.new(0,10)
 end
+local targetH=math.max(IslandCfg.CollapsedHeight or 34,lh+20)
+Tween(pill,0.35,{Size=UDim2.new(0,lw+32,0,targetH)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+Tween(label,0.25,{TextTransparency=0},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 local done=false
 local function finish()
 if done then return end
 done=true
 cap.Notifying=false
-nf.Visible=false
-cap.BtnRow.Visible=false
-cap.Label.Visible=true
+Tween(label,0.18,{TextTransparency=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+task.delay(0.16,function()
+label.Text=cap.RestText
+label.TextWrapped=false
+label.Size=UDim2.new(0,0,1,0)
+label.AutomaticSize="X"
+label.Position=UDim2.new(0,0,0,0)
+label.AnchorPoint=Vector2.new(0,0)
+label.TextTransparency=0
+if pad then
+pad.PaddingLeft=UDim.new(0,14)
+pad.PaddingRight=UDim.new(0,14)
+pad.PaddingTop=UDim.new(0,0)
+pad.PaddingBottom=UDim.new(0,0)
+end
 pill.AutomaticSize="X"
-Tween(pill,0.2,{Size=UDim2.new(0,0,0,IslandCfg.CollapsedHeight)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-task.delay(0.25,function()
+Tween(pill,0.3,{Size=UDim2.new(0,0,0,IslandCfg.CollapsedHeight or 34)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 cap.SetFace()
+task.delay(0.32,function()
 playNext()
+end)
 end)
 end
 cap.Finish=finish
-local dur=cfg.Duration or 4
+local dur=cfg.Duration or IslandCfg.Duration or 4
 cap.Thread=task.delay(dur,finish)
-if bar then
-Tween(bar,dur,{Size=UDim2.new(0,0,0,3)},Enum.EasingStyle.Linear):Play()
-end
 end
 
 function M.Notify(cfg)
