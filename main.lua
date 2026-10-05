@@ -16363,73 +16363,93 @@ playing=true
 cap.Notifying=true
 bind(cap)
 local pill=cap.Pill
-local label=cap.Label
-local stroke=pill:FindFirstChild"LinStroke"
-local pad=pill:FindFirstChildOfClass"UIPadding"
-cap.RestText=label.Text
-local text=(cfg.Title and cfg.Content)and(cfg.Title.."  "..cfg.Content)or(cfg.Content or cfg.Title or"通知")
+local nf=cap.NF
 local bg=IslandCfg.Bg or"Text"
 if type(bg)=="string"and bg:sub(1,1)=="#"then
 pcall(function()pill.BackgroundColor3=Color3.fromHex(bg)end)
 else
 cr.SetThemeTag(pill,{BackgroundColor3=bg},0)
 end
+local stroke=pill:FindFirstChild"LinStroke"
 if stroke then
 stroke.Transparency=0.7
 stroke.Color=Color3.new(1,1,1)
 end
-pill.AutomaticSize="None"
-label.TextWrapped=false
-label.AutomaticSize="Y"
-label.Size=UDim2.new(0,0,0,0)
-label.TextTransparency=1
-label.TextColor3=Color3.new(1,1,1)
-label.Position=UDim2.new(0,0,0.5,0)
-label.AnchorPoint=Vector2.new(0,0.5)
-label.Text=text
-task.wait()
-local tw=label.TextBounds.X
-local sg=W.ScreenGui
-local sgW=sg and sg.AbsoluteSize.X or 400
-local maxW=math.max(160,sgW-48)
-local lw=math.min(tw,maxW)
-label.TextWrapped=true
-label.Size=UDim2.new(0,lw,0,0)
-task.wait()
-local lh=label.AbsoluteSize.Y
-if pad then
-pad.PaddingLeft=UDim.new(0,16)
-pad.PaddingRight=UDim.new(0,16)
-pad.PaddingTop=UDim.new(0,10)
-pad.PaddingBottom=UDim.new(0,10)
+if cap.Dot then
+cap.Dot.BackgroundColor3=Color3.new(1,1,1)
+cap.Dot.BackgroundTransparency=0
 end
-local targetH=math.max(IslandCfg.CollapsedHeight or 34,lh+20)
-Tween(pill,0.35,{Size=UDim2.new(0,lw+32,0,targetH)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-Tween(label,0.25,{TextTransparency=0},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+if cap.Title then
+cap.Title.TextColor3=Color3.new(1,1,1)
+cap.Title.Text=cfg.Title or"通知"
+end
+if cap.Content then
+cap.Content.TextColor3=Color3.new(1,1,1)
+cap.Content.Text=cfg.Content or""
+end
+cap.Label.Visible=false
+nf.Visible=true
+if cfg.Buttons and #cfg.Buttons>0 then
+for _,c in next,cap.BtnRow:GetChildren() do
+if c:IsA"TextButton"then c:Destroy() end
+end
+for _,b in next,cfg.Buttons do
+local btn=New("TextButton",{Text=b.Title or"按钮",FontFace=Font.new(cr.Font,Enum.FontWeight.Medium),TextSize=11,Size=UDim2.new(0,64,0,20),BackgroundColor3=Color3.new(1,1,1),BackgroundTransparency=0.9,Parent=cap.BtnRow},{New("UICorner",{CornerRadius=UDim.new(1,0)})})
+AddSignal(btn.MouseButton1Click,function()
+SafeCallback(b.Callback)
+end)
+end
+cap.BtnRow.Visible=true
+end
+pill.AutomaticSize="None"
+local width=IslandCfg.Width
+if cfg.Buttons and #cfg.Buttons>0 then width=IslandCfg.WidthButtons or width+70 end
+local height=IslandCfg.Height
+Tween(pill,0.28,{Size=UDim2.new(0,width,0,height)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+if cap.Title then
+cap.Title.TextTransparency=1
+cap.Title.Position=UDim2.new(0,18,0,12)
+Tween(cap.Title,0.26,{TextTransparency=0,Position=UDim2.new(0,18,0,6)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+end
+if cap.Content then
+cap.Content.TextTransparency=1
+cap.Content.Position=UDim2.new(0,18,0,29)
+task.delay(0.05,function()
+Tween(cap.Content,0.26,{TextTransparency=0.25,Position=UDim2.new(0,18,0,23)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+end)
+end
+if cap.Dot then
+cap.Dot.Position=UDim2.new(0,-6,0.5,0)
+Tween(cap.Dot,0.24,{Position=UDim2.new(0,2,0.5,0)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+end
+local bar=cap.Bar
+if bar then
+bar.Size=UDim2.new(1,0,0,3)
+bar.BackgroundTransparency=0.2
+end
 local done=false
 local function finish()
 if done then return end
 done=true
-cap.Notifying=false
-Tween(label,0.18,{TextTransparency=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-task.delay(0.16,function()
-label.Text=cap.RestText
-label.TextWrapped=false
-label.Size=UDim2.new(0,0,1,0)
-label.AutomaticSize="X"
-label.Position=UDim2.new(0,0,0,0)
-label.AnchorPoint=Vector2.new(0,0)
-label.TextTransparency=0
-if pad then
-pad.PaddingLeft=UDim.new(0,14)
-pad.PaddingRight=UDim.new(0,14)
-pad.PaddingTop=UDim.new(0,0)
-pad.PaddingBottom=UDim.new(0,0)
+if cap.Title then
+Tween(cap.Title,0.15,{TextTransparency=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end
+if cap.Content then
+Tween(cap.Content,0.15,{TextTransparency=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+end
+if cap.Dot then
+Tween(cap.Dot,0.15,{BackgroundTransparency=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+end
+task.delay(0.14,function()
+nf.Visible=false
+cap.BtnRow.Visible=false
+cap.Dot.BackgroundTransparency=0
+cap.Label.Visible=true
 pill.AutomaticSize="X"
-Tween(pill,0.3,{Size=UDim2.new(0,0,0,IslandCfg.CollapsedHeight or 34)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+Tween(pill,0.24,{Size=UDim2.new(0,0,0,IslandCfg.CollapsedHeight)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+task.delay(0.26,function()
+cap.Notifying=false
 cap.SetFace()
-task.delay(0.32,function()
 playNext()
 end)
 end)
@@ -16437,6 +16457,9 @@ end
 cap.Finish=finish
 local dur=cfg.Duration or IslandCfg.Duration or 4
 cap.Thread=task.delay(dur,finish)
+if bar then
+Tween(bar,dur,{Size=UDim2.new(0,0,0,3)},Enum.EasingStyle.Linear):Play()
+end
 end
 
 function M.Notify(cfg)
