@@ -11520,6 +11520,7 @@ Elements={
 Paragraph=a.load'D',
 Button=a.load'E',
 Toggle=a.load'H',
+ModelCard=a.load'LinCard',
 Slider=a.load'I',
 ProgressBar=a.load'J',
 Keybind=a.load'K',
@@ -11550,6 +11551,9 @@ at.Parent=af
 at.Window=ak
 at.WindUI=al
 at.UIScale=ao
+if ak.CardGrid and not at.__isPopupChild and(ar==a.load'LinCard')then
+return a.load'LinCard'.ModelCard(at,ak,al,ap)
+end
 if ak.CardGrid and not at.__isPopupChild and(ar==a.load'H'or ar==a.load'E')then
 return a.load'LinCard'.Element(at,aa,ak,al,ao,ap,ar)
 end
@@ -13855,6 +13859,23 @@ VerticalAlignment="Center",
 x,
 u,
 }),
+ao("TextLabel",{
+Name="LinPingPill",
+Text="Ping: -- ms",
+FontFace=Font.new(an.Font,Enum.FontWeight.Medium),
+TextSize=11,
+LayoutOrder=3,
+AutomaticSize="XY",
+Size=UDim2.new(0,0,0,20),
+BackgroundColor3=Color3.fromHex"#22C55E",
+TextColor3=Color3.new(1,1,1),
+TextXAlignment="Center",
+BorderSizePixel=0,
+Visible=aw.TopbarPing~=false,
+},{
+ao("UICorner",{CornerRadius=UDim.new(1,0)}),
+ao("UIPadding",{PaddingLeft=UDim.new(0,10),PaddingRight=UDim.new(0,10)}),
+}),
 ao("UIPadding",{
 PaddingLeft=UDim.new(0,4),
 }),
@@ -14211,6 +14232,7 @@ ThemeTag={TextColor3="Text"},
 an.New("Frame",{
 Name="LinNotify",
 BackgroundTransparency=1,
+Active=true,
 Size=UDim2.new(1,0,1,0),
 Visible=false,
 ZIndex=2,
@@ -14260,6 +14282,45 @@ end,
 SetFace=face,
 }
 av.WindUI.LinCapsule=aw.Capsule
+task.spawn(function()
+local lbl
+local t0=os.clock()
+while not lbl and os.clock()-t0<10 do
+for _,d in next,av.WindUI.ScreenGui:GetDescendants() do
+if d.Name=="LinPingPill" then
+lbl=d
+break
+end
+end
+if not lbl then
+task.wait(0.2)
+end
+end
+if not lbl then return end
+local cfg=aw.TopbarPing
+if cfg then
+local c=cfg.Color
+if typeof(c)=="Color3"then
+lbl.BackgroundColor3=c
+elseif type(c)=="string"then
+pcall(function()lbl.BackgroundColor3=Color3.fromHex(c)end)
+end
+local tc=cfg.TextColor
+if typeof(tc)=="Color3"then
+lbl.TextColor3=tc
+elseif type(tc)=="string"then
+pcall(function()lbl.TextColor3=Color3.fromHex(tc)end)
+end
+end
+while true do
+local ok,ms=pcall(function()
+local pl=game:GetService"Players".LocalPlayer
+return pl and math.floor(pl:GetNetworkPing()*1000+0.5)
+end)
+lbl.Text="Ping: "..(ok and ms and tostring(ms)or"--").." ms"
+task.wait(1)
+end
+end)
 task.delay(0.6,face)
 aw.OpenButtonMain={
 Button={TextButton=pill:FindFirstChild"LinHit"},
@@ -15854,6 +15915,18 @@ local NewRoundFrame=cr.NewRoundFrame
 
 local M={}
 local CARD_SIZE=88
+local CardCfg={Size=88,Min=72,Max=0}
+local grids={}
+local function applyGridSize(g,gl)
+local w=g.AbsoluteSize.X
+if w<120 then return end
+local gap=8
+local cols=math.max(1,math.floor((w+gap)/(CardCfg.Size+gap)))
+local cell=math.floor((w-(cols-1)*gap)/cols)
+cell=math.max(cell,CardCfg.Min)
+if CardCfg.Max and CardCfg.Max>0 then cell=math.min(cell,CardCfg.Max) end
+gl.CellSize=UDim2.new(0,cell,0,cell)
+end
 local MAX_CARDS=50
 local MODS={Button="E",Toggle="H",Slider="I",Input="L",Dropdown="O",ColorPicker="S"}
 
@@ -15878,13 +15951,10 @@ LayoutOrder=-9999,
 Parent=cf,
 },{gl})
 AddSignal(g:GetPropertyChangedSignal"AbsoluteSize",function()
-local w=g.AbsoluteSize.X
-if w<120 then return end
-local gap=8
-local cols=math.max(2,math.floor((w+gap)/(CARD_SIZE+gap)))
-local cell=math.floor((w-(cols-1)*gap)/cols)
-gl.CellSize=UDim2.new(0,cell,0,cell)
+applyGridSize(g,gl)
 end)
+grids[g]=gl
+applyGridSize(g,gl)
 end
 return g
 end
@@ -15920,12 +15990,12 @@ local icon
 if iconUrl then
 icon=cr.Image(tostring(iconUrl),tostring(iconUrl)..":"..tostring(title),0,win.Folder,"LinCard",true,false)
 icon.Name="LinIcon"
-icon.Size=UDim2.new(0.36,0,0.36,0)
-icon.Position=UDim2.new(0.5,0,0.14,0)
-icon.AnchorPoint=Vector2.new(0.5,0)
+icon.Size=UDim2.new(0.32,0,0.32,0)
+icon.Position=UDim2.new(0,10,0,10)
+icon.AnchorPoint=Vector2.new(0,0)
 icon.ImageLabel.ImageTransparency=0.25
 end
-local titleL=New("TextLabel",{Name="LinTitle",BackgroundTransparency=1,Text=title or"模块",FontFace=Font.new(cr.Font,Enum.FontWeight.Medium),TextSize=12,TextXAlignment="Center",TextTruncate="AtEnd",TextWrapped=true,Size=UDim2.new(1,-14,0,26),Position=UDim2.new(0.5,0,1,-10),AnchorPoint=Vector2.new(0.5,1),ThemeTag={TextColor3="Text"}})
+local titleL=New("TextLabel",{Name="LinTitle",BackgroundTransparency=1,Text=title or"模块",FontFace=Font.new(cr.Font,Enum.FontWeight.Medium),TextSize=12,TextXAlignment="Right",TextTruncate="AtEnd",TextWrapped=true,Size=UDim2.new(0.72,0,0,26),Position=UDim2.new(1,-10,1,-10),AnchorPoint=Vector2.new(1,1),ThemeTag={TextColor3="Text"}})
 local dot=New("Frame",{Name="LinDot",BackgroundTransparency=1,Size=UDim2.new(0,7,0,7),Position=UDim2.new(1,-12,0,12),AnchorPoint=Vector2.new(1,0)},{New("UICorner",{CornerRadius=UDim.new(1,0)})})
 local hit=New("TextButton",{Name="LinHit",Text="",BackgroundTransparency=1,Size=UDim2.new(1,0,1,0)})
 local kids={outline}
@@ -16167,6 +16237,116 @@ end
 return ai,card
 end
 
+function M.ModelCard(at,win,al,tab)
+local grid=getGrid(tab)
+if not grid then return nil end
+local ai=at
+ai.__type="ModelCard"
+local card=buildShell(win,grid,ai.Title,ai.Icon)
+local hit=card:FindFirstChild"LinHit"
+local pop=nil
+local spinConn=nil
+local function closePop()
+if spinConn then
+spinConn:Disconnect()
+spinConn=nil
+end
+if pop then
+pop:Destroy()
+pop=nil
+end
+end
+local function buildPop()
+local pl=game:GetService"Players".LocalPlayer
+if not pl or not pl.Character or not pl.Character:FindFirstChild"HumanoidRootPart"then
+if al and al.LinIsland then
+al.LinIsland.Notify({Title="人物模型",Content="角色还没生成,稍后再试"})
+end
+return
+end
+closePop()
+local bg=NewRoundFrame(18,"Squircle",{
+Name="LinModelPop",
+Size=UDim2.new(0,150,0,195),
+Position=UDim2.new(1,-14,0.5,0),
+AnchorPoint=Vector2.new(1,0.5),
+ImageTransparency=1,
+ZIndex=100000,
+Parent=win.UIElements.Main,
+ThemeTag={ImageColor3="ElementBackground"},
+},{
+New("UIStroke",{Thickness=1,ThemeTag={Color="Outline"},Transparency=0.55}),
+})
+local vp=New("ViewportFrame",{
+BackgroundTransparency=1,
+Size=UDim2.new(1,0,1,0),
+Ambient=Color3.fromRGB(180,180,180),
+LightColor=Color3.fromRGB(255,255,255),
+LightDirection=Vector3.new(-0.5,-1,-1),
+Parent=bg,
+})
+local cam=Instance.new("Camera")
+cam.FieldOfView=30
+cam.Parent=vp
+vp.CurrentCamera=cam
+local char=pl.Character
+char.Archivable=true
+local clone=char:Clone()
+if clone then
+for _,d in next,clone:GetDescendants() do
+if d:IsA"BaseScript"or d:IsA"ModuleScript"or d:IsA"Sound"then
+d:Destroy()
+end
+end
+clone.Parent=vp
+local hrp=clone:FindFirstChild"HumanoidRootPart"or clone.PrimaryPart or clone:FindFirstChildWhichIsA"BasePart"
+if hrp then
+local ext=clone:GetExtentsSize()
+local dist=math.clamp(ext.Y*2.1,6,13)
+local center=hrp.Position
+local a=2.4
+local function frame(dt)
+a=a+dt*0.7
+cam.CFrame=CFrame.new(center+Vector3.new(math.sin(a)*dist,1.6,math.cos(a)*dist),center+Vector3.new(0,0.6,0))
+end
+frame(0)
+spinConn=game:GetService"RunService".RenderStepped:Connect(frame)
+end
+end
+pop=bg
+cr.Tween(bg,0.22,{Size=UDim2.new(0,180,0,230),ImageTransparency=0},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+end
+local pressed=false
+AddSignal(hit.MouseButton1Down,function()
+pressed=true
+task.delay(0.45,function()
+if pressed then
+pressed=false
+if pop then
+closePop()
+else
+pcall(buildPop)
+end
+end
+end)
+end)
+AddSignal(hit.MouseButton1Up,function()pressed=false end)
+AddSignal(hit.MouseButton1Leave,function()pressed=false end)
+return ai,card
+end
+
+function M.Configure(t)
+for k,v in pairs(t or {}) do CardCfg[k]=v end
+for g,gl in pairs(grids) do
+if g.Parent then
+applyGridSize(g,gl)
+else
+grids[g]=nil
+end
+end
+end
+aa.LinCardConfigure=M.Configure
+
 return M
 end
 
@@ -16178,6 +16358,7 @@ local AddSignal=cr.AddSignal
 local SafeCallback=cr.SafeCallback
 local W=aa
 local M={}
+local IslandCfg={Width=240,WidthButtons=310,Height=52,CollapsedHeight=34,Bg="Accent"}
 local queue={}
 local playing=false
 
@@ -16193,7 +16374,8 @@ end
 local function bind(cap)
 if cap.ClickBound then return end
 cap.ClickBound=true
-AddSignal(cap.Hit.MouseButton1Click,function()
+AddSignal(cap.NF.InputBegan,function(io)
+if io.UserInputType~=Enum.UserInputType.MouseButton1 and io.UserInputType~=Enum.UserInputType.Touch then return end
 if cap.Notifying and cap.Finish then
 if cap.Thread then
 pcall(task.cancel,cap.Thread)
@@ -16219,20 +16401,22 @@ cap.Notifying=true
 bind(cap)
 local pill=cap.Pill
 local nf=cap.NF
-cr.SetThemeTag(pill,{BackgroundColor3="Dialog"},0)
+cr.SetThemeTag(pill,{BackgroundColor3=IslandCfg.Bg or"Accent"},0)
 local stroke=pill:FindFirstChild"LinStroke"
 if stroke then
-cr.SetThemeTag(stroke,{Color="Accent"},0)
+stroke.Transparency=0.7
+stroke.Color=Color3.new(1,1,1)
 end
 if cap.Dot then
-cr.SetThemeTag(cap.Dot,{BackgroundColor3="Accent"},0)
+cap.Dot.BackgroundColor3=Color3.new(1,1,1)
 end
 if cap.Title then
-cr.SetThemeTag(cap.Title,{TextColor3="Text"},0)
+cap.Title.TextColor3=Color3.new(1,1,1)
 cap.Title.Text=cfg.Title or"通知"
 end
 if cap.Content then
-cr.SetThemeTag(cap.Content,{TextColor3="Placeholder"},0)
+cap.Content.TextColor3=Color3.new(1,1,1)
+cap.Content.TextTransparency=0.25
 cap.Content.Text=cfg.Content or""
 end
 cap.Label.Visible=false
@@ -16250,9 +16434,9 @@ end
 cap.BtnRow.Visible=true
 end
 pill.AutomaticSize="None"
-local width=240
-if cfg.Buttons and #cfg.Buttons>0 then width=310 end
-Tween(pill,0.3,{Size=UDim2.new(0,width,0,52)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+local width=IslandCfg.Width
+if cfg.Buttons and #cfg.Buttons>0 then width=IslandCfg.WidthButtons or width+70 end
+Tween(pill,0.3,{Size=UDim2.new(0,width,0,IslandCfg.Height)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 local bar=cap.Bar
 if bar then
 bar.Size=UDim2.new(1,0,0,3)
@@ -16266,7 +16450,7 @@ nf.Visible=false
 cap.BtnRow.Visible=false
 cap.Label.Visible=true
 pill.AutomaticSize="X"
-Tween(pill,0.2,{Size=UDim2.new(0,0,0,34)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+Tween(pill,0.2,{Size=UDim2.new(0,0,0,IslandCfg.CollapsedHeight)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 task.delay(0.25,function()
 cap.SetFace()
 playNext()
@@ -16287,8 +16471,13 @@ task.spawn(playNext)
 end
 end
 
+function M.Configure(t)
+for k,v in pairs(t or {}) do IslandCfg[k]=v end
+end
+W.LinIslandConfigure=M.Configure
 W.LinIsland=M
 return M
 end
 
 return aa
+
