@@ -13880,23 +13880,6 @@ VerticalAlignment="Center",
 x,
 u,
 }),
-ao("TextLabel",{
-Name="LinPingPill",
-Text="Ping: -- ms",
-FontFace=Font.new(an.Font,Enum.FontWeight.Medium),
-TextSize=11,
-LayoutOrder=3,
-AutomaticSize="XY",
-Size=UDim2.new(0,0,0,20),
-BackgroundColor3=Color3.fromHex"#22C55E",
-TextColor3=Color3.new(1,1,1),
-TextXAlignment="Center",
-BorderSizePixel=0,
-Visible=aw.TopbarPing~=false,
-},{
-ao("UICorner",{CornerRadius=UDim.new(1,0)}),
-ao("UIPadding",{PaddingLeft=UDim.new(0,10),PaddingRight=UDim.new(0,10)}),
-}),
 ao("UIPadding",{
 PaddingLeft=UDim.new(0,4),
 }),
@@ -14303,45 +14286,6 @@ end,
 SetFace=face,
 }
 av.WindUI.LinCapsule=aw.Capsule
-task.spawn(function()
-local lbl
-local t0=os.clock()
-while not lbl and os.clock()-t0<10 do
-for _,d in next,av.WindUI.ScreenGui:GetDescendants() do
-if d.Name=="LinPingPill" then
-lbl=d
-break
-end
-end
-if not lbl then
-task.wait(0.2)
-end
-end
-if not lbl then return end
-local cfg=aw.TopbarPing
-if cfg then
-local c=cfg.Color
-if typeof(c)=="Color3"then
-lbl.BackgroundColor3=c
-elseif type(c)=="string"then
-pcall(function()lbl.BackgroundColor3=Color3.fromHex(c)end)
-end
-local tc=cfg.TextColor
-if typeof(tc)=="Color3"then
-lbl.TextColor3=tc
-elseif type(tc)=="string"then
-pcall(function()lbl.TextColor3=Color3.fromHex(tc)end)
-end
-end
-while true do
-local ok,ms=pcall(function()
-local pl=game:GetService"Players".LocalPlayer
-return pl and math.floor(pl:GetNetworkPing()*1000+0.5)
-end)
-lbl.Text="Ping: "..(ok and ms and tostring(ms)or"--").." ms"
-task.wait(1)
-end
-end)
 task.delay(0.6,face)
 aw.OpenButtonMain={
 Button={TextButton=pill:FindFirstChild"LinHit"},
@@ -16352,7 +16296,7 @@ end
 end)
 end)
 AddSignal(hit.MouseButton1Up,function()pressed=false end)
-AddSignal(hit.MouseButton1Leave,function()pressed=false end)
+AddSignal(hit.MouseLeave,function()pressed=false end)
 return ai,card
 end
 
