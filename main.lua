@@ -14251,7 +14251,7 @@ Size=UDim2.new(1,0,1,0),
 ZIndex=3,
 }),
 })
-local label=pill:FindFirstChild"LinLabel"
+local label=pill.LinIdle:FindFirstChild"LinLabel"
 local nf=pill:FindFirstChild"LinNotify"
 aw.Capsule={
 Pill=pill,
@@ -16307,6 +16307,8 @@ local current=nil
 local timerThread=nil
 local timerLeft=0
 local timerDeadline=0
+local pausedAt=0
+local compactShown=nil
 local expandThread=nil
 local expandFrom="idle"
 
@@ -16381,6 +16383,7 @@ end
 local function showIdle(cap)
 state="idle"
 cap.Notifying=false
+compactShown=nil
 stopTimer()
 stopExpand()
 if cap.NF then cap.NF.Visible=false end
@@ -16447,6 +16450,7 @@ end
 stopTimer()
 timerLeft=dur
 timerDeadline=os.clock()+dur
+compactShown=cfg
 timerThread=task.delay(dur,function() showIdle(cap) end)
 end
 
@@ -16523,6 +16527,7 @@ local function expand(cap)
 if state=="expand"then return end
 stopTimer()
 timerLeft=math.max(0,(timerDeadline or os.clock())-os.clock())
+pausedAt=os.clock()
 local from=state
 expandFrom=from
 state="expand"
@@ -16568,19 +16573,34 @@ end
 function collapse(cap)
 stopExpand()
 if expandFrom=="notify"and current then
-showNotify(cap,current)
-stopTimer()
-local rem=math.max(timerLeft,0.6)
-timerLeft=rem
-timerDeadline=os.clock()+rem
-timerThread=task.delay(rem,function() showIdle(cap) end)
+local dur=current.Duration or IslandCfg.Duration or 4
+local rem=math.max(0.6,timerLeft-(os.clock()-pausedAt))
+state="notify"
+cap.Notifying=true
+if cap.NF then cap.NF.Visible=true end
+if cap.Idle then cap.Idle.Visible=false end
+if cap.Expand then cap.Expand.Visible=false end
+pillFace(cap)
+cap.Corner.CornerRadius=UDim.new(1,0)
+cap.GlassCorner.CornerRadius=UDim.new(1,0)
+local w=notifyWidth(current)
+Tween(cap.Pill,0.3,{Size=UDim2.new(0,w,0,IslandCfg.Height)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+cap.Title.TextTransparency=0
+cap.Content.TextTransparency=0.3
+if cap.Dot.Visible then cap.Dot.BackgroundTransparency=0 end
+if cap.Icon.Visible then cap.Icon.TextTransparency=0 end
 if cap.Bar then
+local frac=math.clamp(rem/dur,0,1)
 cap.Bar.BackgroundColor3=accentColor()
 cap.Bar.BackgroundTransparency=0.2
-cap.Bar.Size=UDim2.new(1,0,0,2)
+cap.Bar.Size=UDim2.new(frac,0,0,2)
 cap.Bar.Position=UDim2.new(0,0,1,-6)
 Tween(cap.Bar,rem,{Size=UDim2.new(0,0,0,2)},Enum.EasingStyle.Linear):Play()
 end
+stopTimer()
+timerLeft=rem
+timerDeadline=os.clock()+rem
+timerThread=task.delay(rem,function() showIdle(cap) end)
 else
 showIdle(cap)
 end
@@ -16614,6 +16634,13 @@ local iconStr=(type(c.Icon)=="string"and c.Icon~="")and(c.Icon.." ")or""
 if c.Title then cap.ExpTitle.Text=iconStr..c.Title end
 if c.Content then cap.ExpContent.Text=c.Content end
 if c.Buttons then buildButtons(cap,cap.ExpBtnRow,c.Buttons) end
+applyNotify(cap,c)
+compactShown=c
+expandFrom="notify"
+local dur=c.Duration or IslandCfg.Duration or 4
+timerLeft=dur
+timerDeadline=os.clock()+dur
+pausedAt=os.clock()
 stopExpand()
 expandThread=task.delay(IslandCfg.ExpandDuration or 6,function()
 if state=="expand"then collapse(cap) end
