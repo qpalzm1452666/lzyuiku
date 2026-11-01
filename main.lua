@@ -4012,7 +4012,7 @@ LinCraft={
 Name="LinCraft",
 Accent=Color3.fromHex"#7B84E8",
 Dialog=Color3.fromHex"#FFFFFF",
-Outline=Color3.fromHex"#F7F7FA",
+Outline=Color3.fromHex"#ECECF4",
 Text=Color3.fromHex"#33333D",
 Placeholder=Color3.fromHex"#9A9AA8",
 Background=Color3.fromHex"#F7F7FA",
@@ -4043,7 +4043,7 @@ LinCraftDark={
 Name="LinCraftDark",
 Accent=Color3.fromHex"#8B93E8",
 Dialog=Color3.fromHex"#1C1C26",
-Outline=Color3.fromHex"#181820",
+Outline=Color3.fromHex"#2A2A36",
 Text=Color3.fromHex"#F2F2F7",
 Placeholder=Color3.fromHex"#6E6E80",
 Background=Color3.fromHex"#15151C",
@@ -4563,7 +4563,7 @@ Active=true,
 
 local al=ad.NewRoundFrame(ai/2,"Squircle",{
 Size=UDim2.new(1,0,0,0),
-ImageTransparency=1,
+ImageTransparency=0.85,
 ThemeTag={ImageColor3="Text"},
 Parent=ak,
 })
@@ -7242,7 +7242,7 @@ Title=ak.Title or nil,
 Desc=ak.Desc or nil,
 Locked=ak.Locked or nil,
 LockedTitle=ak.LockedTitle,
-Value=ak.Value or{},
+Value=typeof(ak.Value)=="table"and ak.Value or{Min=ak.Min,Max=ak.Max,Default=ak.Default},
 Icons=ak.Icons or nil,
 IsTooltip=ak.IsTooltip or false,
 IsTextbox=ak.IsTextbox,
@@ -8244,7 +8244,7 @@ local ai=ae("Frame",{
 Size=ah.ParentType~="Group"and UDim2.new(1,0,0,1)or UDim2.new(0,1,1,0),
 Position=UDim2.new(0.5,0,0.5,0),
 AnchorPoint=Vector2.new(0.5,0.5),
-BackgroundTransparency=1,
+BackgroundTransparency=.9,
 ThemeTag={
 BackgroundColor3="Text"
 }
@@ -10691,7 +10691,7 @@ ThemeTag={
 
 ImageColor3="SectionBoxBorder",
 },
-ImageTransparency=1,
+ImageTransparency=an.Box and an.BoxBorder and 0.92 or 1,
 Name="Outline",
 ClipsDescendants=true,
 },{
@@ -12023,7 +12023,7 @@ HorizontalAlignment=ar.TabTitleAlign,
 }),
 al("Frame",{
 Size=UDim2.new(1,0,0,1),
-BackgroundTransparency=1,
+BackgroundTransparency=0.9,
 ThemeTag={
 BackgroundColor3="Text",
 },
@@ -12690,7 +12690,7 @@ Size=UDim2.new(1,0,0,1),
 ThemeTag={
 BackgroundColor3="Outline",
 },
-BackgroundTransparency=1,
+BackgroundTransparency=0.9,
 Visible=false,
 }),
 as,
@@ -13978,9 +13978,9 @@ end
 
 function aw.CreateTopbarButton(z,A,B,C,F,G,H,J)
 local L
-if B=="x"or B=="-"then
+if B=="x"then
 L=ao("TextLabel",{
-Text=B=="-"and"-"or"X",
+Text="X",
 FontFace=Font.new(an.Font,Enum.FontWeight.Medium),
 TextSize=15,
 TextXAlignment="Center",
@@ -14210,42 +14210,38 @@ if aw.IsOpenButtonEnabled~=false then
 do
 local pill=an.New("Frame",{
 Name="LinCapsule",
-Size=UDim2.new(0,0,0,36),
+Size=UDim2.new(0,0,0,34),
 AutomaticSize="X",
 Position=UDim2.new(0.5,0,0,10),
 AnchorPoint=Vector2.new(0.5,0),
-BackgroundColor3=Color3.fromHex"#ffffff",
+BackgroundColor3=Color3.fromHex"#0a0a0c",
 BorderSizePixel=0,
 ZIndex=99999,
 Parent=av.WindUI.ScreenGui,
-ThemeTag={BackgroundColor3="Dialog"},
 },{
-an.New("UICorner",{CornerRadius=UDim.new(1,0)}),
-an.New("UIGradient",{Name="LinGradient",Rotation=90,Color=ColorSequence.new(Color3.new(1,1,1),Color3.new(1,1,1))}),
-an.New("UIStroke",{Name="LinStroke",Thickness=1,ThemeTag={Color="Outline"},Transparency=0.4}),
-an.New("UIPadding",{PaddingLeft=UDim.new(0,14),PaddingRight=UDim.new(0,14)}),
-an.New("TextLabel",{
-Name="LinLabel",
-Text=aw.CapsuleText or aw.Title or"LinCraft",
-FontFace=Font.new(an.Font,Enum.FontWeight.Medium),
-TextSize=13,
-BackgroundTransparency=1,
-AutomaticSize="X",
-Size=UDim2.new(0,0,1,0),
-ThemeTag={TextColor3="Text"},
+an.New("UICorner",{Name="LinCorner",CornerRadius=UDim.new(1,0)}),
+an.New("UIStroke",{Name="LinStroke",Thickness=1,Color=Color3.new(1,1,1),Transparency=0.85}),
+an.New("Frame",{Name="LinGlass",BackgroundColor3=Color3.new(1,1,1),BackgroundTransparency=1,Size=UDim2.new(1,-16,0,12),Position=UDim2.new(0,8,0,2),BorderSizePixel=0,ZIndex=2},{
+an.New("UICorner",{Name="LinGlassCorner",CornerRadius=UDim.new(1,0)}),
+an.New("UIGradient",{Rotation=90,Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0.8),NumberSequenceKeypoint.new(1,1)})}),
 }),
-an.New("Frame",{
-Name="LinNotify",
-BackgroundTransparency=1,
-Size=UDim2.new(1,0,1,0),
-Visible=false,
-ZIndex=4,
-},{
-an.New("Frame",{Name="LinDot",Size=UDim2.new(0,8,0,8),Position=UDim2.new(0,2,0.5,0),AnchorPoint=Vector2.new(0,0.5),BackgroundColor3=Color3.new(1,1,1)},{an.New("UICorner",{CornerRadius=UDim.new(1,0)})}),
-an.New("TextLabel",{Name="LinTitle",BackgroundTransparency=1,FontFace=Font.new(an.Font,Enum.FontWeight.Medium),TextSize=13,TextXAlignment="Left",TextTruncate="AtEnd",Text="",TextColor3=Color3.new(1,1,1),Size=UDim2.new(1,-40,0,16),Position=UDim2.new(0,18,0,6)}),
-an.New("TextLabel",{Name="LinContent",BackgroundTransparency=1,FontFace=Font.new(an.Font,Enum.FontWeight.Medium),TextSize=11,TextXAlignment="Left",TextTruncate="AtEnd",Text="",TextColor3=Color3.new(1,1,1),TextTransparency=0.3,Size=UDim2.new(1,-40,0,14),Position=UDim2.new(0,18,0,23)}),
-an.New("Frame",{Name="LinBar",Size=UDim2.new(1,0,0,3),Position=UDim2.new(0,0,1,-3),BackgroundColor3=Color3.new(1,1,1),BackgroundTransparency=0.2},{an.New("UICorner",{CornerRadius=UDim.new(1,0)})}),
-an.New("Frame",{Name="LinBtnRow",BackgroundTransparency=1,Size=UDim2.new(1,-30,0,20),Position=UDim2.new(0,18,1,-26),Visible=false},{an.New("UIListLayout",{Padding=UDim.new(0,6),FillDirection="Horizontal",HorizontalAlignment="Right"})}),
+an.New("UIPadding",{PaddingLeft=UDim.new(0,12),PaddingRight=UDim.new(0,12)}),
+an.New("Frame",{Name="LinIdle",BackgroundTransparency=1,Size=UDim2.new(0,0,1,0),ZIndex=2},{
+an.New("UIListLayout",{Padding=UDim.new(0,8),FillDirection="Horizontal",VerticalAlignment="Center",SortOrder="LayoutOrder"}),
+an.New("Frame",{Name="LinIdleDot",Size=UDim2.new(0,6,0,6),BackgroundColor3=Color3.fromHex"#30d158",BackgroundTransparency=0,BorderSizePixel=0,LayoutOrder=1},{an.New("UICorner",{CornerRadius=UDim.new(1,0)})}),
+an.New("TextLabel",{Name="LinLabel",Text=aw.CapsuleText or aw.Title or"LinCraft",FontFace=Font.new(an.Font,Enum.FontWeight.Medium),TextSize=12,BackgroundTransparency=1,AutomaticSize="X",Size=UDim2.new(0,0,1,0),TextTransparency=0.45,TextColor3=Color3.new(1,1,1),LayoutOrder=2}),
+}),
+an.New("Frame",{Name="LinNotify",BackgroundTransparency=1,Size=UDim2.new(1,0,1,0),Visible=false,ZIndex=4},{
+an.New("Frame",{Name="LinDot",Size=UDim2.new(0,8,0,8),Position=UDim2.new(0,2,0.5,0),AnchorPoint=Vector2.new(0,0.5),BackgroundColor3=Color3.fromHex"#30d158",BackgroundTransparency=1,BorderSizePixel=0},{an.New("UICorner",{CornerRadius=UDim.new(1,0)})}),
+an.New("TextLabel",{Name="LinIcon",Size=UDim2.new(0,20,0,20),Position=UDim2.new(0,0,0,5),BackgroundTransparency=1,TextSize=16,FontFace=Font.new(an.Font,Enum.FontWeight.Medium),Text="",TextColor3=Color3.new(1,1,1),TextTransparency=1,Visible=false}),
+an.New("TextLabel",{Name="LinTitle",BackgroundTransparency=1,FontFace=Font.new(an.Font,Enum.FontWeight.Medium),TextSize=13,TextXAlignment="Left",TextTruncate="AtEnd",Text="",TextColor3=Color3.new(1,1,1),TextTransparency=1,Size=UDim2.new(1,-26,0,16),Position=UDim2.new(0,14,0,6),ZIndex=4}),
+an.New("TextLabel",{Name="LinContent",BackgroundTransparency=1,FontFace=Font.new(an.Font,Enum.FontWeight.Medium),TextSize=11,TextXAlignment="Left",TextTruncate="AtEnd",Text="",TextColor3=Color3.new(1,1,1),TextTransparency=1,Size=UDim2.new(1,-26,0,14),Position=UDim2.new(0,14,0,23),ZIndex=4}),
+an.New("Frame",{Name="LinBar",Size=UDim2.new(1,0,0,2),Position=UDim2.new(0,0,1,-6),BackgroundColor3=Color3.fromHex"#30d158",BackgroundTransparency=1,BorderSizePixel=0,ZIndex=4},{an.New("UICorner",{CornerRadius=UDim.new(1,0)})}),
+}),
+an.New("Frame",{Name="LinExpand",BackgroundTransparency=1,Size=UDim2.new(1,0,1,0),Visible=false,ZIndex=5},{
+an.New("TextLabel",{Name="LinExpTitle",BackgroundTransparency=1,FontFace=Font.new(an.Font,Enum.FontWeight.SemiBold),TextSize=15,TextXAlignment="Left",TextTruncate="AtEnd",Text="",TextColor3=Color3.new(1,1,1),TextTransparency=1,Size=UDim2.new(1,-32,0,18),Position=UDim2.new(0,16,0,14),ZIndex=5}),
+an.New("TextLabel",{Name="LinExpContent",BackgroundTransparency=1,FontFace=Font.new(an.Font,Enum.FontWeight.Medium),TextSize=12,TextXAlignment="Left",TextYAlignment="Top",TextWrapped=true,TextTruncate="AtEnd",Text="",TextColor3=Color3.new(1,1,1),TextTransparency=1,Size=UDim2.new(1,-32,0,44),Position=UDim2.new(0,16,0,38),ZIndex=5}),
+an.New("Frame",{Name="LinExpBtnRow",BackgroundTransparency=1,Size=UDim2.new(1,-32,0,24),Position=UDim2.new(0,16,1,-34),ZIndex=5},{an.New("UIListLayout",{Padding=UDim.new(0,8),FillDirection="Horizontal",HorizontalAlignment="Right",VerticalAlignment="Center",SortOrder="LayoutOrder"})}),
 }),
 an.New("TextButton",{
 Name="LinHit",
@@ -14257,44 +14253,41 @@ ZIndex=3,
 })
 local label=pill:FindFirstChild"LinLabel"
 local nf=pill:FindFirstChild"LinNotify"
-local stroke=pill:FindFirstChild"LinStroke"
-local function face()
-local gradient=pill:FindFirstChild"LinGradient"
-if gradient then gradient.Color=ColorSequence.new(Color3.new(1,1,1),Color3.new(1,1,1)) end
-if aw.Closed then
-an.SetThemeTag(pill,{BackgroundColor3="Dialog"},0)
-an.SetThemeTag(stroke,{Color="Outline"},0.4)
-an.SetThemeTag(label,{TextColor3="Text"},0)
-else
-an.SetThemeTag(pill,{BackgroundColor3="Accent"},0)
-an.SetThemeTag(stroke,{Color="Accent"},1)
-an.SetThemeTag(label,{TextColor3="Background"},0)
-end
-end
 aw.Capsule={
 Pill=pill,
 Label=label,
+Idle=pill:FindFirstChild"LinIdle",
+IdleDot=pill.LinIdle:FindFirstChild"LinIdleDot",
 NF=nf,
 Title=nf:FindFirstChild"LinTitle",
 Content=nf:FindFirstChild"LinContent",
 Bar=nf:FindFirstChild"LinBar",
-BtnRow=nf:FindFirstChild"LinBtnRow",
 Dot=nf:FindFirstChild"LinDot",
+Icon=nf:FindFirstChild"LinIcon",
+Expand=pill:FindFirstChild"LinExpand",
+ExpTitle=pill.LinExpand:FindFirstChild"LinExpTitle",
+ExpContent=pill.LinExpand:FindFirstChild"LinExpContent",
+ExpBtnRow=pill.LinExpand:FindFirstChild"LinExpBtnRow",
+Corner=pill:FindFirstChild"LinCorner",
+GlassCorner=pill.LinGlass:FindFirstChild"LinGlassCorner",
+Stroke=pill:FindFirstChild"LinStroke",
 Hit=pill:FindFirstChild"LinHit",
 Notifying=false,
 SetText=function(self,t)
 label.Text=t
 end,
-SetFace=face,
+SetFace=function() end,
 }
 av.WindUI.LinCapsule=aw.Capsule
-task.delay(0.6,face)
 aw.OpenButtonMain={
 Button={TextButton=pill:FindFirstChild"LinHit"},
 Visible=function() end,
 SetIcon=function() end,
 Edit=function() end,
 }
+task.defer(function()
+pcall(function() a.load"LinIsland" end)
+end)
 end
 else
 aw.OpenButtonMain={Button=nil,Visible=function() end,SetIcon=function() end,Edit=function() end}
@@ -14939,7 +14932,7 @@ local J=ao("Frame",{
 Size=UDim2.new(1,0,0,1),
 Position=UDim2.new(0.5,0,0,0),
 AnchorPoint=Vector2.new(0.5,0),
-BackgroundTransparency=1,
+BackgroundTransparency=0.9,
 ThemeTag={
 BackgroundColor3="Text",
 },
@@ -15202,11 +15195,6 @@ if w2.Name=="Minimize"or w2.Name=="Fullscreen"then
 w2.Object:Destroy()
 end
 end
-
--- 最小化按钮：隐藏窗口，不销毁窗口实例；点击灵动岛可重新打开。
-aw:CreateTopbarButton("Minimize","-",function()
-if not aw.Closed and not aw.Destroyed then aw:Close() end
-end,(aw.Topbar.ButtonsType=="Default"and 998 or 996),nil,Color3.fromHex"#D88AA8")
 
 function aw.Tag(L,M)
 if aw.UIElements.Main.Main.Topbar.Center.Visible==false then
@@ -16312,233 +16300,334 @@ local AddSignal=cr.AddSignal
 local SafeCallback=cr.SafeCallback
 local W=aa
 local M={}
-local IslandCfg={Width=260,WidthButtons=330,Height=58,CollapsedHeight=36,CollapsedWidth=42,Bg="#E45B91",Accent="#FFD9E7",Duration=4,MaxQueue=8,Queue=true,PauseOnHover=true,Animation=0.32}
-local queue={}
-local workerRunning=false
-local activeToken=nil
+local IslandCfg={Width=250,WidthButtons=300,Height=52,CollapsedHeight=34,ExpandWidth=300,ExpandHeight=120,ExpandDuration=6,Bg="#0a0a0c",Accent="#30d158",Duration=4}
+local state="idle"
+local current=nil
+local timerThread=nil
+local timerLeft=0
+local expandThread=nil
+local expandFrom="idle"
+
+local function hex(c)
+if type(c)=="string"and c:sub(1,1)=="#"then
+local ok,col=pcall(Color3.fromHex,c)
+if ok then return col end
+end
+return nil
+end
+local function bgColor()
+return hex(IslandCfg.Bg)or Color3.fromHex"#0a0a0c"
+end
+local function accentColor()
+return hex(IslandCfg.Accent)or Color3.fromHex"#30d158"
+end
+local TS=game:GetService"TextService"
+local function textW(s,size)
+if not s or s==""then return 0 end
+local ok,w=pcall(function()
+return TS:GetTextSize(s,size,Enum.Font.GothamMedium,Vector2.new(10000,10000)).X
+end)
+if ok and w then return w end
+return #s*size*0.55
+end
 
 local function getCapsule()
 if W.LinCapsule then return W.LinCapsule end
-local started=os.clock()
-while not W.LinCapsule and os.clock()-started<5 do task.wait(0.08) end
+local t0=os.clock()
+while not W.LinCapsule and os.clock()-t0<5 do
+task.wait(0.1)
+end
 return W.LinCapsule
 end
 
-local function toColor(value)
-if typeof(value)=="Color3" then return value end
-if type(value)=="string" and value:sub(1,1)=="#" then
-local ok,color=pcall(Color3.fromHex,value)
-if ok then return color end
+local function stopTimer()
+if timerThread then
+pcall(task.cancel,timerThread)
+timerThread=nil
 end
-return nil
 end
-
-local function setColor(obj,property,value)
-if not obj or value==nil then return nil end
-local color=toColor(value)
-if color then obj[property]=color return color end
-if type(value)=="string" then pcall(function() cr.SetThemeTag(obj,{[property]=value},0) end) end
-return nil
+local function stopExpand()
+if expandThread then
+pcall(task.cancel,expandThread)
+expandThread=nil
+end
 end
 
-local function shade(color,factor)
-return Color3.new(math.clamp(color.R*factor,0,1),math.clamp(color.G*factor,0,1),math.clamp(color.B*factor,0,1))
+local function fadeOut(o)
+if not o then return end
+if o:IsA"TextLabel"then
+Tween(o,0.14,{TextTransparency=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+else
+Tween(o,0.14,{BackgroundTransparency=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+end
+end
+local function fadeIn(o,to)
+if not o then return end
+if o:IsA"TextLabel"then
+Tween(o,0.24,{TextTransparency=to or 0},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+else
+Tween(o,0.24,{BackgroundTransparency=to or 0},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+end
 end
 
-local function animTime()
-return math.clamp(tonumber(IslandCfg.Animation) or 0.32,0.12,0.8)
+local function pillFace(cap)
+cap.Pill.BackgroundColor3=bgColor()
+if cap.Stroke then cap.Stroke.Transparency=0.85 end
+end
+
+local function showIdle(cap)
+state="idle"
+cap.Notifying=false
+stopTimer()
+stopExpand()
+if cap.NF then cap.NF.Visible=false end
+if cap.Expand then cap.Expand.Visible=false end
+if cap.Idle then cap.Idle.Visible=true end
+if cap.IdleDot then cap.IdleDot.BackgroundTransparency=0 cap.IdleDot.Size=UDim2.new(0,6,0,6) end
+local pill=cap.Pill
+pill.AutomaticSize="None"
+local iw=math.max(72,textW(cap.Label.Text,12)+50)
+pillFace(cap)
+Tween(cap.Corner,0.3,{CornerRadius=UDim.new(1,0)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+Tween(cap.GlassCorner,0.3,{CornerRadius=UDim.new(1,0)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+Tween(pill,0.3,{Size=UDim2.new(0,iw,0,IslandCfg.CollapsedHeight)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+task.delay(0.31,function()
+if state=="idle"then pill.AutomaticSize="X" end
+end)
+end
+
+local function applyNotify(cap,cfg)
+local hasIcon=type(cfg.Icon)=="string"and cfg.Icon~=""
+local tx=hasIcon and 26 or 14
+cap.Dot.Visible=not hasIcon
+cap.Dot.BackgroundColor3=accentColor()
+cap.Dot.BackgroundTransparency=1
+cap.Icon.Visible=hasIcon
+if hasIcon then cap.Icon.Text=cfg.Icon end
+cap.Icon.TextTransparency=1
+cap.Title.Position=UDim2.new(0,tx,0,6)
+cap.Title.Size=UDim2.new(1,-(tx+12),0,16)
+cap.Content.Position=UDim2.new(0,tx,0,23)
+cap.Content.Size=UDim2.new(1,-(tx+12),0,14)
+cap.Title.Text=cfg.Title or"通知"
+cap.Content.Text=cfg.Content or""
+cap.Title.TextTransparency=1
+cap.Content.TextTransparency=1
+end
+
+local function notifyWidth(cfg)
+local t=cfg.Title or"通知"
+local c=cfg.Content or""
+local hasIcon=type(cfg.Icon)=="string"and cfg.Icon~=""
+local w=math.max(textW(t,13),textW(c,11))+(hasIcon and 64 or 52)
+if cfg.Buttons and #cfg.Buttons>0 then w=math.max(w,IslandCfg.WidthButtons or 300)end
+return math.clamp(math.floor(w),210,360)
+end
+
+local function armNotify(cap,cfg,dur,first)
+local w=notifyWidth(cfg)
+Tween(cap.Pill,first and 0.34 or 0.28,{Size=UDim2.new(0,w,0,IslandCfg.Height)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+task.delay(first and 0.12 or 0.08,function()
+if state~="notify"then return end
+fadeIn(cap.Title,0)
+fadeIn(cap.Content,0.3)
+if cap.Dot.Visible then fadeIn(cap.Dot,0) end
+if cap.Icon.Visible then fadeIn(cap.Icon,0) end
+end)
+if cap.Bar then
+cap.Bar.BackgroundColor3=accentColor()
+cap.Bar.BackgroundTransparency=0.2
+cap.Bar.Size=UDim2.new(1,0,0,2)
+cap.Bar.Position=UDim2.new(0,0,1,-6)
+Tween(cap.Bar,dur,{Size=UDim2.new(0,0,0,2)},Enum.EasingStyle.Linear):Play()
+end
+stopTimer()
+timerLeft=dur
+timerThread=task.delay(dur,function() showIdle(cap) end)
+end
+
+local function showNotify(cap,cfg)
+local first=(state~="notify")
+state="notify"
+cap.Notifying=true
+stopExpand()
+pillFace(cap)
+if cap.NF then cap.NF.Visible=true end
+if cap.Idle then cap.Idle.Visible=false end
+if cap.Expand then cap.Expand.Visible=false end
+cap.Pill.AutomaticSize="None"
+cap.Corner.CornerRadius=UDim.new(1,0)
+cap.GlassCorner.CornerRadius=UDim.new(1,0)
+applyNotify(cap,cfg)
+armNotify(cap,cfg,cfg.Duration or IslandCfg.Duration or 4,first)
+end
+
+local function replaceNotify(cap,cfg)
+stopTimer()
+fadeOut(cap.Title)
+fadeOut(cap.Content)
+if cap.Bar then cap.Bar.Size=UDim2.new(0,0,0,2) end
+task.delay(0.12,function()
+if state~="notify"then return end
+applyNotify(cap,cfg)
+armNotify(cap,cfg,cfg.Duration or IslandCfg.Duration or 4,false)
+end)
+end
+
+local collapse
+
+local function buildButtons(cap,row,buttons)
+for _,c in next,row:GetChildren() do
+if c:IsA"TextButton"then c:Destroy() end
+end
+for i,b in next,buttons or{} do
+local primary=(i==1)
+local tw=math.max(56,textW(b.Title or"按钮",12)+20)
+local btn=New("TextButton",{
+Text=b.Title or"按钮",
+FontFace=Font.new(cr.Font,Enum.FontWeight.Medium),
+TextSize=12,
+Size=UDim2.new(0,tw,0,24),
+BackgroundColor3=primary and accentColor()or Color3.new(1,1,1),
+BackgroundTransparency=primary and 0 or 0.88,
+TextTransparency=primary and 0 or 0.1,
+TextColor3=primary and Color3.fromHex"#0a0a0c" or Color3.new(1,1,1),
+BorderSizePixel=0,
+AutoButtonColor=true,
+Parent=row,
+},{New("UICorner",{CornerRadius=UDim.new(1,0)})})
+AddSignal(btn.MouseButton1Click,function()
+SafeCallback(b.Callback)
+if state=="expand"then collapse(cap) end
+end)
+end
+end
+
+local function expand(cap)
+if state=="expand"then return end
+stopTimer()
+local from=state
+expandFrom=from
+state="expand"
+cap.Notifying=false
+local cfg=current or{}
+fadeOut(cap.Title)
+fadeOut(cap.Content)
+fadeOut(cap.Dot)
+fadeOut(cap.Icon)
+fadeOut(cap.Bar)
+local pill=cap.Pill
+pill.AutomaticSize="None"
+local ew=IslandCfg.ExpandWidth or 300
+local eh=IslandCfg.ExpandHeight or 120
+Tween(cap.Corner,0.36,{CornerRadius=UDim.new(0,32)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+Tween(cap.GlassCorner,0.36,{CornerRadius=UDim.new(0,24)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+Tween(pill,0.36,{Size=UDim2.new(0,ew,0,eh)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+if cap.NF then cap.NF.Visible=false end
+if cap.Idle then cap.Idle.Visible=false end
+local iconStr=(type(cfg.Icon)=="string"and cfg.Icon~="")and(cfg.Icon.." ")or""
+if from=="notify"then
+cap.ExpTitle.Text=iconStr..(cfg.Title or"通知")
+cap.ExpContent.Text=cfg.Content or""
+else
+cap.ExpTitle.Text=cap.Label.Text~=""and cap.Label.Text or"LinCraft UI"
+cap.ExpContent.Text="已就绪 · 再点一下收起"
+end
+cap.ExpTitle.TextTransparency=1
+cap.ExpContent.TextTransparency=1
+if cap.Expand then cap.Expand.Visible=true end
+buildButtons(cap,cap.ExpBtnRow,cfg.Buttons)
+task.delay(0.14,function()
+if state~="expand"then return end
+fadeIn(cap.ExpTitle,0)
+fadeIn(cap.ExpContent,0.28)
+end)
+stopExpand()
+expandThread=task.delay(IslandCfg.ExpandDuration or 6,function()
+if state=="expand"then collapse(cap) end
+end)
+end
+
+function collapse(cap)
+stopExpand()
+if expandFrom=="notify"and current then
+showNotify(cap,current)
+stopTimer()
+local rem=math.max(timerLeft,1.5)
+timerLeft=rem
+timerThread=task.delay(rem,function() showIdle(cap) end)
+if cap.Bar then
+cap.Bar.BackgroundColor3=accentColor()
+cap.Bar.BackgroundTransparency=0.2
+cap.Bar.Size=UDim2.new(1,0,0,2)
+cap.Bar.Position=UDim2.new(0,0,1,-6)
+Tween(cap.Bar,rem,{Size=UDim2.new(0,0,0,2)},Enum.EasingStyle.Linear):Play()
+end
+else
+showIdle(cap)
+end
 end
 
 local function bind(cap)
 if cap.ClickBound then return end
 cap.ClickBound=true
-if cap.Hit then
 AddSignal(cap.Hit.MouseButton1Click,function()
-if activeToken then activeToken.Cancelled=true end
+if state=="expand"then
+collapse(cap)
+elseif state=="notify"then
+expand(cap)
+elseif state=="idle"then
+expand(cap)
+end
 end)
 end
-if cap.Pill then
-AddSignal(cap.Pill.MouseEnter,function()
-cap.Hovered=true
-end)
-AddSignal(cap.Pill.MouseLeave,function()
-cap.Hovered=false
-end)
-end
-end
 
-local function prepareButtons(cap,cfg)
-local row=cap.BtnRow
-if not row then return end
-for _,child in next,row:GetChildren() do
-if child:IsA("TextButton") then child:Destroy() end
-end
-local buttons=type(cfg.Buttons)=="table" and cfg.Buttons or nil
-if not buttons or #buttons==0 then row.Visible=false return end
-for _,item in next,buttons do
-local button=New("TextButton",{Text=item.Title or "按钮",FontFace=Font.new(cr.Font,Enum.FontWeight.Medium),TextSize=11,TextColor3=Color3.new(1,1,1),Size=UDim2.new(0,66,0,22),BackgroundColor3=Color3.new(1,1,1),BackgroundTransparency=0.84,AutoButtonColor=true,Parent=row},{New("UICorner",{CornerRadius=UDim.new(1,0)})})
-AddSignal(button.MouseButton1Click,function() SafeCallback(item.Callback) end)
-end
-row.Visible=true
-end
-
-local function styleNotification(cap,cfg)
-local pill=cap.Pill
-local bg=cfg.Bg or IslandCfg.Bg
-local accent=cfg.Accent or IslandCfg.Accent
-local base=setColor(pill,"BackgroundColor3",bg)
-local gradient=pill:FindFirstChild("LinGradient")
-if gradient then
-if base then
-pill.BackgroundColor3=Color3.new(1,1,1)
-gradient.Color=ColorSequence.new(shade(base,1.08),shade(base,0.9))
-else
-pcall(function() gradient.Color=ColorSequence.new(Color3.new(1,1,1),Color3.new(1,1,1)) end)
-end
-end
-local stroke=pill:FindFirstChild("LinStroke")
-if stroke then
-stroke.Color=toColor(accent) or Color3.new(1,1,1)
-stroke.Transparency=0.42
-end
-local accentColor=toColor(accent)
-if cap.Dot then
-if accentColor then cap.Dot.BackgroundColor3=accentColor else setColor(cap.Dot,"BackgroundColor3",accent) end
-cap.Dot.BackgroundTransparency=0
-end
-if cap.Bar then
-if accentColor then cap.Bar.BackgroundColor3=accentColor else setColor(cap.Bar,"BackgroundColor3",accent) end
-cap.Bar.BackgroundTransparency=0.12
-end
-end
-
-local function playOne(cap,cfg,alreadyOpen)
-local token={Cancelled=false}
-activeToken=token
-cap.Tok=token
-cap.Notifying=true
-cap.Finish=function() token.Cancelled=true end
-local pill=cap.Pill
-local nf=cap.NF
-local anim=animTime()
-if alreadyOpen then
-if cap.Title then Tween(cap.Title,0.12,{TextTransparency=1},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play() end
-if cap.Content then Tween(cap.Content,0.12,{TextTransparency=1},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play() end
-task.wait(0.12)
-end
-if token.Cancelled then return end
-styleNotification(cap,cfg)
-if cap.Title then cap.Title.Text=cfg.Title or "通知" cap.Title.TextColor3=Color3.new(1,1,1) cap.Title.TextTransparency=1 end
-if cap.Content then cap.Content.Text=cfg.Content or "" cap.Content.TextColor3=Color3.new(1,1,1) cap.Content.TextTransparency=1 end
-prepareButtons(cap,cfg)
-if cap.Label then cap.Label.Visible=false end
-if nf then nf.Visible=true end
-local width=tonumber(cfg.Width) or tonumber(IslandCfg.Width) or 260
-if type(cfg.Buttons)=="table" and #cfg.Buttons>0 then width=tonumber(cfg.WidthButtons) or tonumber(IslandCfg.WidthButtons) or width+70 end
-local height=tonumber(cfg.Height) or tonumber(IslandCfg.Height) or 58
-pill.AutomaticSize="None"
-Tween(pill,anim,{Size=UDim2.new(0,width,0,height)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-if cap.Dot then
-cap.Dot.Position=UDim2.new(0,-7,0.5,0)
-Tween(cap.Dot,anim*0.78,{Position=UDim2.new(0,2,0.5,0)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-end
-if cap.Title then
-cap.Title.Position=UDim2.new(0,18,0,12)
-Tween(cap.Title,anim*0.82,{TextTransparency=0,Position=UDim2.new(0,18,0,7)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-end
-if cap.Content then
-cap.Content.Position=UDim2.new(0,18,0,32)
-Tween(cap.Content,anim*0.82,{TextTransparency=0.16,Position=UDim2.new(0,18,0,27)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-end
-if cap.Bar then cap.Bar.Size=UDim2.new(1,0,0,3) end
-task.wait(anim)
-local duration=math.max(0.15,tonumber(cfg.Duration) or tonumber(IslandCfg.Duration) or 4)
-local elapsed=0
-while elapsed<duration and not token.Cancelled do
-local dt=task.wait(1/30) or 1/30
-if not (IslandCfg.PauseOnHover and cap.Hovered) then
-elapsed=elapsed+dt
-if cap.Bar then cap.Bar.Size=UDim2.new(math.clamp(1-elapsed/duration,0,1),0,0,3) end
-end
-end
-return token.Cancelled
-end
-
-local function collapse(cap)
-local anim=animTime()
-cap.Notifying=false
-cap.Finish=nil
-cap.Tok=nil
-if cap.Title then Tween(cap.Title,anim*0.45,{TextTransparency=1},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play() end
-if cap.Content then Tween(cap.Content,anim*0.45,{TextTransparency=1},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play() end
-if cap.Dot then Tween(cap.Dot,anim*0.45,{BackgroundTransparency=1},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play() end
-if cap.Bar then cap.Bar.Size=UDim2.new(1,0,0,3) end
-task.wait(anim*0.18)
-if cap.NF then cap.NF.Visible=false end
-if cap.BtnRow then cap.BtnRow.Visible=false end
-local pill=cap.Pill
-if cap.Label then cap.Label.Visible=true cap.Label.TextTransparency=1 end
-pill.AutomaticSize="None"
-local idleWidth=tonumber(IslandCfg.CollapsedWidth) or 42
-if cap.Label then idleWidth=math.max(idleWidth,cap.Label.TextBounds.X+28) end
-local idleHeight=tonumber(IslandCfg.CollapsedHeight) or 36
-Tween(pill,anim,{Size=UDim2.new(0,idleWidth,0,idleHeight)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-if cap.Label then Tween(cap.Label,anim*0.72,{TextTransparency=0},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play() end
-task.wait(anim)
-pill.AutomaticSize="X"
-if cap.SetFace then cap.SetFace() end
-end
-
-local function startWorker()
-if workerRunning then return end
-workerRunning=true
-task.spawn(function()
+function M.Notify(cfg)
+current=cfg or{}
 local cap=getCapsule()
-if not cap then workerRunning=false return end
+if not cap then return end
 bind(cap)
-local open=false
-while true do
-if #queue==0 then
-if open then collapse(cap) open=false end
-if #queue==0 then break end
-else
-local cfg=table.remove(queue,1)
-playOne(cap,cfg,open)
-activeToken=nil
-open=true
-if #queue==0 then collapse(cap) open=false end
-end
-end
-workerRunning=false
-if #queue>0 then startWorker() end
+if state=="expand"then
+local c=current
+local iconStr=(type(c.Icon)=="string"and c.Icon~="")and(c.Icon.." ")or""
+if c.Title then cap.ExpTitle.Text=iconStr..c.Title end
+if c.Content then cap.ExpContent.Text=c.Content end
+if c.Buttons then buildButtons(cap,cap.ExpBtnRow,c.Buttons) end
+stopExpand()
+expandThread=task.delay(IslandCfg.ExpandDuration or 6,function()
+if state=="expand"then collapse(cap) end
 end)
-end
-
-function M.Notify(first,second)
-local cfg=second or first
-if cfg==M then cfg=nil end
-if type(cfg)~="table" then cfg={Title=tostring(cfg or "通知")} end
-if IslandCfg.Queue==false then
-for index=#queue,1,-1 do queue[index]=nil end
-if activeToken then activeToken.Cancelled=true end
+elseif state=="notify"then
+replaceNotify(cap,current)
 else
-local maxQueue=math.max(1,math.floor(tonumber(IslandCfg.MaxQueue) or 8))
-while #queue>=maxQueue do table.remove(queue,1) end
+showNotify(cap,current)
 end
-queue[#queue+1]=cfg
-startWorker()
 end
 
-function M.Configure(first,second)
-local config=second or first
-if config==M then config=nil end
-for key,value in pairs(config or {}) do IslandCfg[key]=value end
-IslandCfg.MaxQueue=math.max(1,math.floor(tonumber(IslandCfg.MaxQueue) or 8))
+function M.Configure(t)
+for k,v in pairs(t or{})do IslandCfg[k]=v end
 end
-
-M.GetQueueSize=function() return #queue end
 W.LinIslandConfigure=M.Configure
 W.LinIsland=M
+task.spawn(function()
+while true do
+task.wait(1.2)
+local cap=W.LinCapsule
+if not cap then break end
+local d=cap.IdleDot
+if state=="idle"and d then
+local t1=Tween(d,0.8,{BackgroundTransparency=0.6,Size=UDim2.new(0,5,0,5)},Enum.EasingStyle.Sine,Enum.EasingDirection.InOut)
+t1:Play()
+t1.Completed:Wait()
+if state~="idle"then continue end
+task.wait(0.15)
+local t2=Tween(d,0.8,{BackgroundTransparency=0,Size=UDim2.new(0,6,0,6)},Enum.EasingStyle.Sine,Enum.EasingDirection.InOut)
+t2:Play()
+t2.Completed:Wait()
+end
+end
+end)
+end
 return M
 end
 
