@@ -14272,6 +14272,7 @@ Corner=pill:FindFirstChild"LinCorner",
 GlassCorner=pill.LinGlass:FindFirstChild"LinGlassCorner",
 Stroke=pill:FindFirstChild"LinStroke",
 Hit=pill:FindFirstChild"LinHit",
+Win=aw,
 Notifying=false,
 SetText=function(self,t)
 label.Text=t
@@ -14280,7 +14281,7 @@ SetFace=function() end,
 }
 av.WindUI.LinCapsule=aw.Capsule
 aw.OpenButtonMain={
-Button={TextButton=pill:FindFirstChild"LinHit"},
+Button={TextButton=an.New("TextButton",{Text="",BackgroundTransparency=1,Size=UDim2.new(0,1,0,1)})},
 Visible=function() end,
 SetIcon=function() end,
 Edit=function() end,
@@ -15191,7 +15192,7 @@ end
 end,(aw.Topbar.ButtonsType=="Default"and 999 or 997),nil,Color3.fromHex"#F4695F")
 
 for _,w2 in next,aw.TopBarButtons do
-if w2.Name=="Minimize"or w2.Name=="Fullscreen"then
+if w2.Name=="Fullscreen"then
 w2.Object:Destroy()
 end
 end
@@ -16305,10 +16306,12 @@ local state="idle"
 local current=nil
 local timerThread=nil
 local timerLeft=0
+local timerDeadline=0
 local expandThread=nil
 local expandFrom="idle"
 
 local function hex(c)
+if typeof(c)=="Color3"then return c end
 if type(c)=="string"and c:sub(1,1)=="#"then
 local ok,col=pcall(Color3.fromHex,c)
 if ok then return col end
@@ -16420,8 +16423,8 @@ local t=cfg.Title or"通知"
 local c=cfg.Content or""
 local hasIcon=type(cfg.Icon)=="string"and cfg.Icon~=""
 local w=math.max(textW(t,13),textW(c,11))+(hasIcon and 64 or 52)
-if cfg.Buttons and #cfg.Buttons>0 then w=math.max(w,IslandCfg.WidthButtons or 300)end
-return math.clamp(math.floor(w),210,360)
+if cfg.Buttons and #cfg.Buttons>0 then w=math.max(w,textW((cfg.Buttons[1].Title or"按钮"),12)*2+80)end
+return math.clamp(math.floor(w),210,340)
 end
 
 local function armNotify(cap,cfg,dur,first)
@@ -16443,6 +16446,7 @@ Tween(cap.Bar,dur,{Size=UDim2.new(0,0,0,2)},Enum.EasingStyle.Linear):Play()
 end
 stopTimer()
 timerLeft=dur
+timerDeadline=os.clock()+dur
 timerThread=task.delay(dur,function() showIdle(cap) end)
 end
 
@@ -16482,21 +16486,33 @@ if c:IsA"TextButton"then c:Destroy() end
 end
 for i,b in next,buttons or{} do
 local primary=(i==1)
+local custom=hex(b.Color)
 local tw=math.max(56,textW(b.Title or"按钮",12)+20)
+local us=New("UIScale",{Scale=1})
 local btn=New("TextButton",{
 Text=b.Title or"按钮",
 FontFace=Font.new(cr.Font,Enum.FontWeight.Medium),
 TextSize=12,
 Size=UDim2.new(0,tw,0,24),
-BackgroundColor3=primary and accentColor()or Color3.new(1,1,1),
-BackgroundTransparency=primary and 0 or 0.88,
-TextTransparency=primary and 0 or 0.1,
-TextColor3=primary and Color3.fromHex"#0a0a0c" or Color3.new(1,1,1),
+BackgroundColor3=custom or(primary and accentColor()or Color3.new(1,1,1)),
+BackgroundTransparency=custom and 0 or(primary and 0 or 0.88),
+TextColor3=hex(b.TextColor)or Color3.fromHex"#0a0a0c",
+TextTransparency=custom and 0 or(primary and 0 or 0.1),
 BorderSizePixel=0,
-AutoButtonColor=true,
+AutoButtonColor=false,
 Parent=row,
-},{New("UICorner",{CornerRadius=UDim.new(1,0)})})
+},{New("UICorner",{CornerRadius=UDim.new(1,0)}),us})
+AddSignal(btn.MouseButton1Down,function()
+Tween(us,0.08,{Scale=0.92},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+end)
+AddSignal(btn.MouseButton1Up,function()
+Tween(us,0.14,{Scale=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+end)
+AddSignal(btn.MouseLeave,function()
+Tween(us,0.14,{Scale=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+end)
 AddSignal(btn.MouseButton1Click,function()
+Tween(us,0.14,{Scale=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 SafeCallback(b.Callback)
 if state=="expand"then collapse(cap) end
 end)
@@ -16506,6 +16522,7 @@ end
 local function expand(cap)
 if state=="expand"then return end
 stopTimer()
+timerLeft=math.max(0,(timerDeadline or os.clock())-os.clock())
 local from=state
 expandFrom=from
 state="expand"
@@ -16553,8 +16570,9 @@ stopExpand()
 if expandFrom=="notify"and current then
 showNotify(cap,current)
 stopTimer()
-local rem=math.max(timerLeft,1.5)
+local rem=math.max(timerLeft,0.6)
 timerLeft=rem
+timerDeadline=os.clock()+rem
 timerThread=task.delay(rem,function() showIdle(cap) end)
 if cap.Bar then
 cap.Bar.BackgroundColor3=accentColor()
@@ -16572,11 +16590,14 @@ local function bind(cap)
 if cap.ClickBound then return end
 cap.ClickBound=true
 AddSignal(cap.Hit.MouseButton1Click,function()
+local win=cap.Win
+if win and win.Closed and not win.Destroyed then
+win:Open()
+return
+end
 if state=="expand"then
 collapse(cap)
-elseif state=="notify"then
-expand(cap)
-elseif state=="idle"then
+else
 expand(cap)
 end
 end)
